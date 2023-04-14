@@ -29,6 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -37,6 +38,7 @@ async def root():
 @app.get("/hello/{name}")
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
+
 
 @app.get("/user/")
 async def get_users():
