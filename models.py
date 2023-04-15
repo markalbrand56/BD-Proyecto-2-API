@@ -64,8 +64,10 @@ class Record(BaseModel):
     status: str
     unidad_salud_id: int
 
+
 class BodegaSearch(BaseModel):
     id: int
+
 
 class Bodega(BaseModel):
     id: int

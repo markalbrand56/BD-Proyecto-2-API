@@ -68,7 +68,7 @@ async def get_users() -> list[models.User]:
 # ------------------------------------------- UserLogin.jsx --------------------------------------------------------- #
 #######################################################################################################################
 @app.get("/user/login/")
-async def login_user(user: models.UserLogin) -> models.UserDetails:
+async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
     query = f"SELECT * FROM usuario WHERE dpi = '{user.dpi}' AND contrasena = '{user.password}'"
@@ -106,7 +106,7 @@ async def login_user(user: models.UserLogin) -> models.UserDetails:
 #######################################################################################################################
 
 @app.post("/user/signup/")
-async def signup_user(user: models.UserSignIn) -> models.UserDetails:
+async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
     query_usuario = f"INSERT INTO usuario VALUES ('{user.dpi}', '{user.rol}', '{user.password}')"
@@ -155,7 +155,7 @@ async def get_healthcenters() -> list[str]:
 #######################################################################################################################
 
 @app.get("/record/")
-async def get_records(id: models.RecordSearch) -> list[models.Record]:
+async def get_records(id: models.RecordSearch) -> list[models.Record] | dict:
     conn = connect_db()
     cur = conn.cursor()
     query = f"SELECT * FROM expediente WHERE paciente_dpi = '{id.dpi}'"
@@ -194,10 +194,10 @@ async def get_records(id: models.RecordSearch) -> list[models.Record]:
 #######################################################################################################################
 
 @app.get("/inventory/")
-async def get_inventory(id_unidad: models.BodegaSearch) -> list[models.Bodega]:
+async def get_inventory(id_unidad: models.BodegaSearch) -> list[models.Bodega] | dict:
     conn = connect_db()
     cur = conn.cursor()
-    query = f"SELECT * FROM bodega WHERE unidad_de_salud_id = '{id_unidad.id}'"
+    query = f"SELECT * FROM bodega WHERE unidad_salud_id = '{id_unidad.id}'"
     cur.execute(query)
     rows = cur.fetchall()
 
