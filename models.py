@@ -84,6 +84,7 @@ class InventoryUpdate(BaseModel):
 
 
 class ProductAdd(BaseModel):
+    id_user_auth: str
     detalle: str
     existencia: int
     cantidad: int  # cantidad mínima de existencia

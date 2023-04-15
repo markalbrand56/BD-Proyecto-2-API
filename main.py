@@ -260,15 +260,16 @@ async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega |
 async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
     conn = connect_db()
     cur = conn.cursor()
+    user_auth = f"set my.app_user = '{product.id_user_auth}'"
+    cur.execute(user_auth)
     query = f"INSERT INTO bodega (detalle, existencia, cantidad, expiracion, unidad_salud_id) VALUES ('{product.detalle}', true, {product.cantidad}, '{product.expiracion}', {product.unidad_salud_id})"
     try:
         cur.execute(query)
         conn.commit()
 
-        id_insert = cur.fetchone()
-        print(id_insert)
-
-        cur.execute(f"SELECT * FROM bodega WHERE id = '{id_insert}'")  # Registro actualizado
+        query = f"SELECT * FROM bodega WHERE detalle = '{product.detalle}' and existencia = true and cantidad = {product.cantidad} and expiracion = date '{product.expiracion}' and unidad_salud_id = {product.unidad_salud_id} "
+        print(query)
+        cur.execute(query)
         row = cur.fetchone()
 
         cur.close()
@@ -279,8 +280,8 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
             detalle=row[1],
             existencia=row[2],
             cantidad=row[3],
-            expiracion=row[4],
-            unidad_de_salud_id=row[5]
+            expiracion=str(row[4]),
+            unidad_salud_id=row[5]
         )
     except Exception as e:
         print(e)
