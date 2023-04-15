@@ -2,8 +2,6 @@ import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 import os
 import psycopg2
@@ -45,7 +43,7 @@ async def say_hello(name: str):
 
 
 @app.get("/user/")
-async def get_users():
+async def get_users() -> list[models.User]:
     conn = connect_db()
     cur = conn.cursor()
     query = 'SELECT * FROM "usuario"'
@@ -54,20 +52,17 @@ async def get_users():
 
     result = []
     for row in rows:
-        result.append({
-            "dpi": row[0],
-            "rol": row[1],
-            "contrasena": row[2]
-        })
-    users = jsonable_encoder(result)
+        result.append(
+            models.User(dpi=row[0], rol=row[1], password=row[2])
+        )
 
     cur.close()
     conn.close()
-    return JSONResponse(content=users)
+    return result
 
 
 @app.get("/user/login/")
-async def login_user(user: models.UserLogin):
+async def login_user(user: models.UserLogin) -> models.UserDetails:
     conn = connect_db()
     cur = conn.cursor()
     query = f"SELECT * FROM usuario WHERE dpi = '{user.dpi}' AND contrasena = '{user.password}'"
@@ -89,19 +84,19 @@ async def login_user(user: models.UserLogin):
         else:
             cur.close()
             conn.close()
-            return {
-                "dpi": row[0],
-                "nombre": row[1],
-                "direccion": row[2],
-                "telefono": row[3],
-                "num_colegiado": row[4],
-                "especialidad": row[5],
-                "unidad_de_salud": None,  # CAMBIAR
-            }
+            return models.UserDetails(
+                dpi=row[0],
+                nombre=row[1],
+                direccion=row[2],
+                telefono=row[3],
+                num_colegiado=row[4],
+                especialidad=row[5],
+                unidad_de_salud=row[6]
+            )
 
 
 @app.post("/user/signup/")
-async def signup_user(user: models.UserSignIn):
+async def signup_user(user: models.UserSignIn) -> models.UserDetails:
     conn = connect_db()
     cur = conn.cursor()
     query_usuario = f"INSERT INTO usuario VALUES ('{user.dpi}', '{user.rol}', '{user.password}')"
@@ -114,7 +109,7 @@ async def signup_user(user: models.UserSignIn):
 
 
 @app.get("/record/")
-async def get_records(id: models.RecordSearch):
+async def get_records(id: models.RecordSearch) -> list[models.Record]:
     conn = connect_db()
     cur = conn.cursor()
     query = f"SELECT * FROM expediente WHERE paciente_dpi = '{id.dpi}'"
@@ -128,20 +123,21 @@ async def get_records(id: models.RecordSearch):
 
     result = []
     for row in rows:
-        result.append({
-            "no_expediente": row[0],
-            "paciente_dpi": row[1],
-            "medico_encargado": row[2],
-            "enfermedad_id": row[3],
-            "examenes": row[4],
-            "diagnosticos": row[5],
-            "fecha_atencion": row[6],
-            "cirugias": row[7],
-            "status": row[8],
-            "unidad_salud_id": row[9]
-        })
+        result.append(
+             models.Record(
+                 no_expediente=row[0],
+                 paciente_dpi=row[1],
+                 medico_encargado=row[2],
+                 enfermedad_id=row[3],
+                 examenes=row[4],
+                 diagnosticos=row[5],
+                 fecha_atencion=row[6],
+                 cirugias=row[7],
+                 status=row[8],
+                 unidad_salud_id=row[9]
+             )
+        )
 
-    expedientes = jsonable_encoder(result)
     cur.close()
     conn.close()
-    return JSONResponse(content=expedientes)
+    return result
