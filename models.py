@@ -31,7 +31,7 @@ class UserDetails(BaseModel):
     telefono: str
     num_colegiado: str
     especialidad: str
-    unidad_de_salud: int
+    #unidad_de_salud: int
 
 
 class RecordSearch(BaseModel):
@@ -81,3 +81,11 @@ class Bodega(BaseModel):
 class InventoryUpdate(BaseModel):
     id: int
     existencia: int
+
+
+class ProductAdd(BaseModel):
+    detalle: str
+    existencia: int
+    cantidad: int  # cantidad mínima de existencia
+    expiracion: str
+    unidad_salud_id: int

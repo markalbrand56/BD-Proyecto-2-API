@@ -96,8 +96,8 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
                 direccion=row[2],
                 telefono=row[3],
                 num_colegiado=row[4],
-                especialidad=row[5],
-                unidad_de_salud=row[6]
+                especialidad=row[5]
+                #unidad_de_salud=row[6]
             )
 
 
@@ -250,3 +250,38 @@ async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega |
     except Exception as e:
         print(e)
         return {"message": "Error updating inventory"}
+
+
+#######################################################################################################################
+# ---------------------------------------------- Add Product.jsx ---------------------------------------------------- #
+#######################################################################################################################
+
+@app.post("/inventory/add/")
+async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"INSERT INTO bodega (detalle, existencia, cantidad, expiracion, unidad_salud_id) VALUES ('{product.detalle}', true, {product.cantidad}, '{product.expiracion}', {product.unidad_salud_id})"
+    try:
+        cur.execute(query)
+        conn.commit()
+
+        id_insert = cur.fetchone()
+        print(id_insert)
+
+        cur.execute(f"SELECT * FROM bodega WHERE id = '{id_insert}'")  # Registro actualizado
+        row = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        return models.Bodega(
+            id=row[0],
+            detalle=row[1],
+            existencia=row[2],
+            cantidad=row[3],
+            expiracion=row[4],
+            unidad_de_salud_id=row[5]
+        )
+    except Exception as e:
+        print(e)
+        return {"message": "Error adding product"}
