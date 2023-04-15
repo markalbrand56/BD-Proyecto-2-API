@@ -293,23 +293,11 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
 #######################################################################################################################
 
 @app.get("/account/")
-async def get_account(id: models.AccountSearch) -> models.AccountDetails | dict:
+async def get_account(id: models.AccountRequest) -> models.AccountDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
-    '''
-    select
-        m.dpi,
-        m.nombre,
-        m.direccion,
-        m.telefono,
-        m.num_colegiado,
-        m.especialidad,
-        t.unidad_salud_id
-    from medico m
-    inner join trabaja t on m.dpi = t.medico_dpi
-    where t.fecha_entrada = (select max(fecha_entrada) from trabaja where medico_dpi = m.dpi)
-    '''
-    query = f"SELECT m.dpi, m.nombre, m.direccion, m.telefono, m.num_colegiado, m.especialidad, t.unidad_salud_id FROM medico m INNER JOIN trabaja t ON m.dpi = t.medico_dpi WHERE t.fecha_entrada = (SELECT max(fecha_entrada) FROM trabaja WHERE medico_dpi = m.dpi) AND m.dpi = '{id.dpi}'"
+
+    query = f"SELECT m.dpi, m.nombre, m.direccion, m.telefono, m.num_colegiado, m.especialidad, t.unidad_salud_id FROM medico m LEFT JOIN trabaja t ON m.dpi = t.medico_dpi WHERE t.fecha_entrada = (SELECT max(fecha_entrada) FROM trabaja WHERE medico_dpi = m.dpi) AND m.dpi = '{id.dpi}'"
     cur.execute(query)
     row = cur.fetchone()
 
