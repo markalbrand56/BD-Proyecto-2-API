@@ -76,3 +76,8 @@ class Bodega(BaseModel):
     cantidad: int  # cantidad mínima de existencia
     expiracion: str
     unidad_salud_id: int
+
+
+class InventoryUpdate(BaseModel):
+    id: int
+    existencia: int

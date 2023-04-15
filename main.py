@@ -222,3 +222,31 @@ async def get_inventory(id_unidad: models.BodegaSearch) -> list[models.Bodega] |
     cur.close()
     conn.close()
     return result
+
+
+@app.put("/inventory/")
+async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"UPDATE bodega SET existencia = {inventory.existencia} WHERE id = {inventory.id}"
+    try:
+        cur.execute(query)
+        conn.commit()
+
+        cur.execute(f"SELECT * FROM bodega WHERE id = {inventory.id}")  # Registro actualizado
+        row = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        return models.Bodega(
+            id=row[0],
+            detalle=row[1],
+            existencia=row[2],
+            cantidad=row[3],
+            expiracion=row[4],
+            unidad_de_salud_id=row[5]
+        )
+    except Exception as e:
+        print(e)
+        return {"message": "Error updating inventory"}
