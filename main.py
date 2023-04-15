@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
-from pydantic import BaseModel
 import psycopg2
+import models
 
 app = FastAPI()
 load_dotenv()
@@ -50,3 +50,35 @@ async def get_users():
     cur.close()
     conn.close()
     return rows
+
+@app.get("/user/login/")
+async def login_user(user: models.UserLogin):
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"SELECT * FROM usuario WHERE dpi = '{user.dpi}' AND contrasena = '{user.password}'"
+    cur.execute(query)
+    row = cur.fetchone()
+
+    if row is None:
+        cur.close()
+        conn.close()
+        return {"message": "Invalid username or password"}
+    else:
+        query = f"SELECT * FROM medico WHERE dpi = '{user.dpi}'"
+        cur.execute(query)
+        row = cur.fetchone()
+        if row is None:
+            cur.close()
+            conn.close()
+            return {"message": "Invalid username or password"}
+        else:
+            cur.close()
+            conn.close()
+            return {
+                "dpi": row[0],
+                "nombre": row[1],
+                "direccion": row[2],
+                "telefono": row[3],
+                "num_colegiado": row[4],
+                "especialidad": row[5]
+            }
