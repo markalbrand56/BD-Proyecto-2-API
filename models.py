@@ -31,7 +31,7 @@ class UserDetails(BaseModel):
     telefono: str
     num_colegiado: str
     especialidad: str
-    #unidad_de_salud: int
+    # unidad_de_salud: int
 
 
 class RecordSearch(BaseModel):
@@ -89,4 +89,30 @@ class ProductAdd(BaseModel):
     existencia: int
     cantidad: int  # cantidad mínima de existencia
     expiracion: str
+    unidad_salud_id: int
+
+
+class AccountRequest(BaseModel):
+    dpi: str
+
+
+class AccountDetails(BaseModel):
+    dpi: str
+    nombre: str
+    direccion: str
+    telefono: str
+    num_colegiado: str
+    especialidad: str
+    unidad_salud_id: int
+
+
+class WorkHistory(BaseModel):
+    fecha_entrada: str
+    fecha_salida: str | None
+    medico_dpi: str
+    unidad_salud_id: int
+
+
+class WorkHistoryUpdate(BaseModel):
+    medico_dpi: str
     unidad_salud_id: int

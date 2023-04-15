@@ -97,7 +97,7 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
                 telefono=row[3],
                 num_colegiado=row[4],
                 especialidad=row[5]
-                #unidad_de_salud=row[6]
+                # unidad_de_salud=row[6]
             )
 
 
@@ -286,3 +286,107 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
     except Exception as e:
         print(e)
         return {"message": "Error adding product"}
+
+
+#######################################################################################################################
+# -------------------------------------------------- Account.jsx ---------------------------------------------------- #
+#######################################################################################################################
+
+@app.get("/account/")
+async def get_account(id: models.AccountSearch) -> models.AccountDetails | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    '''
+    select
+        m.dpi,
+        m.nombre,
+        m.direccion,
+        m.telefono,
+        m.num_colegiado,
+        m.especialidad,
+        t.unidad_salud_id
+    from medico m
+    inner join trabaja t on m.dpi = t.medico_dpi
+    where t.fecha_entrada = (select max(fecha_entrada) from trabaja where medico_dpi = m.dpi)
+    '''
+    query = f"SELECT m.dpi, m.nombre, m.direccion, m.telefono, m.num_colegiado, m.especialidad, t.unidad_salud_id FROM medico m INNER JOIN trabaja t ON m.dpi = t.medico_dpi WHERE t.fecha_entrada = (SELECT max(fecha_entrada) FROM trabaja WHERE medico_dpi = m.dpi) AND m.dpi = '{id.dpi}'"
+    cur.execute(query)
+    row = cur.fetchone()
+
+    if row is None:
+        cur.close()
+        conn.close()
+        return {"message": "No account found"}
+
+    result = models.AccountDetails(
+        dpi=row[0],
+        nombre=row[1],
+        direccion=row[2],
+        telefono=row[3],
+        num_colegiado=row[4],
+        especialidad=row[5],
+        unidad_salud_id=row[6],
+    )
+
+    cur.close()
+    conn.close()
+    return result
+
+
+@app.get("/account/workHistory/")
+async def get_work_history(id: models.AccountRequest) -> list[models.WorkHistory] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"SELECT * FROM trabaja WHERE medico_dpi = '{id.dpi}'"
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    if rows is None or len(rows) == 0:
+        cur.close()
+        conn.close()
+        return {"message": "No records found"}
+
+    result = []
+    for row in rows:
+        result.append(
+            models.WorkHistory(
+                medico_dpi=row[0],
+                unidad_salud_id=row[1],
+                fecha_entrada=row[2],
+                fecha_salida=row[3]
+            )
+        )
+
+    cur.close()
+    conn.close()
+    return result
+
+
+@app.put("/account/workHistory/")
+async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.WorkHistory | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    # ASUMIENDO QUE SOLO PUEDE HABER UN REGISTRO CON NULL EN FECHA_SALIDA A LA VEZ
+    query = f"UPDATE trabaja SET fecha_salida = date {datetime.date.today()} where fecha_salida is null and medico_dpi = '{work_history.medico_dpi}'"
+    try:
+        cur.execute(query)
+        conn.commit()
+
+        query = f"INSERT INTO trabaja values (date '{datetime.date.today()}', null, '{work_history.medico_dpi}', {work_history.unidad_salud_id})"
+        cur.execute(query)
+
+        cur.execute(f"SELECT * FROM trabaja WHERE medico_dpi = '{work_history.medico_dpi}' and unidad_salud_id = {work_history.unidad_salud_id} and fecha_entrada = date '{datetime.date.today()}'")
+        row = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        return models.WorkHistory(
+            medico_dpi=row[0],
+            unidad_salud_id=row[1],
+            fecha_entrada=row[2],
+            fecha_salida=row[3]
+        )
+    except Exception as e:
+        print(e)
+        return {"message": "Error updating work history"}
