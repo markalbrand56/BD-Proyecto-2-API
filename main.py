@@ -390,3 +390,31 @@ async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.
     except Exception as e:
         print(e)
         return {"message": "Error updating work history"}
+
+
+@app.put("/account/")
+async def update_account(account: models.AccountUpdate) -> models.UserDetails | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"UPDATE medico SET direccion = '{account.direccion}', telefono = '{account.telefono}', especialidad = '{account.especialidad}' WHERE dpi = '{account.dpi}'"
+    try:
+        cur.execute(query)
+        conn.commit()
+
+        cur.execute(f"SELECT * FROM medico WHERE dpi = '{account.dpi}'")
+        row = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        return models.UserDetails(
+            dpi=row[0],
+            nombre=row[1],
+            direccion=row[2],
+            telefono=row[3],
+            num_colegiado=row[4],
+            especialidad=row[5],
+        )
+    except Exception as e:
+        print(e)
+        return {"message": "Error updating account"}
