@@ -32,6 +32,9 @@ app.add_middleware(
 )
 
 
+#######################################################################################################################
+# ---------------------------------------------- Pruebas ------------------------------------------------------------ #
+#######################################################################################################################
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -61,6 +64,9 @@ async def get_users() -> list[models.User]:
     return result
 
 
+#######################################################################################################################
+# ------------------------------------------- UserLogin.jsx --------------------------------------------------------- #
+#######################################################################################################################
 @app.get("/user/login/")
 async def login_user(user: models.UserLogin) -> models.UserDetails:
     conn = connect_db()
@@ -95,6 +101,10 @@ async def login_user(user: models.UserLogin) -> models.UserDetails:
             )
 
 
+#######################################################################################################################
+# ----------------------------------------------- Signin.jsx -------------------------------------------------------- #
+#######################################################################################################################
+
 @app.post("/user/signup/")
 async def signup_user(user: models.UserSignIn) -> models.UserDetails:
     conn = connect_db()
@@ -107,6 +117,42 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails:
     print(query_trabaja)
     return {"message": "User created successfully"}
 
+
+@app.get("/user/dpi/")
+async def get_dpis() -> list[str]:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = 'SELECT dpi FROM usuario'
+    cur.execute(query)
+    rows = cur.fetchall()
+    print(rows)
+    result = []
+    for row in rows:
+        result.append(row[0])
+    cur.close()
+    conn.close()
+    return result
+
+
+@app.get("/healthcenter/")
+async def get_healthcenters() -> list[str]:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = 'SELECT nombre FROM unidad_salud'
+    cur.execute(query)
+    rows = cur.fetchall()
+    print(rows)
+    result = []
+    for row in rows:
+        result.append(row[0])
+    cur.close()
+    conn.close()
+    return result
+
+
+#######################################################################################################################
+# ----------------------------------------------- Record.jsx -------------------------------------------------------- #
+#######################################################################################################################
 
 @app.get("/record/")
 async def get_records(id: models.RecordSearch) -> list[models.Record]:
@@ -124,18 +170,53 @@ async def get_records(id: models.RecordSearch) -> list[models.Record]:
     result = []
     for row in rows:
         result.append(
-             models.Record(
-                 no_expediente=row[0],
-                 paciente_dpi=row[1],
-                 medico_encargado=row[2],
-                 enfermedad_id=row[3],
-                 examenes=row[4],
-                 diagnosticos=row[5],
-                 fecha_atencion=row[6],
-                 cirugias=row[7],
-                 status=row[8],
-                 unidad_salud_id=row[9]
-             )
+            models.Record(
+                no_expediente=row[0],
+                paciente_dpi=row[1],
+                medico_encargado=row[2],
+                enfermedad_id=row[3],
+                examenes=row[4],
+                diagnosticos=row[5],
+                fecha_atencion=row[6],
+                cirugias=row[7],
+                status=row[8],
+                unidad_salud_id=row[9]
+            )
+        )
+
+    cur.close()
+    conn.close()
+    return result
+
+
+#######################################################################################################################
+# --------------------------------------------- Inventory.jsx ------------------------------------------------------- #
+#######################################################################################################################
+
+@app.get("/inventory/")
+async def get_inventory(id_unidad: models.BodegaSearch) -> list[models.Bodega]:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"SELECT * FROM bodega WHERE unidad_de_salud_id = '{id_unidad.id}'"
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    if rows is None or len(rows) == 0:
+        cur.close()
+        conn.close()
+        return {"message": "No records found"}
+
+    result = []
+    for row in rows:
+        result.append(
+            models.Bodega(
+                id=row[0],
+                detalle=row[1],
+                existencia=row[2],
+                cantidad=row[3],
+                expiracion=row[4],
+                unidad_de_salud_id=row[5]
+            )
         )
 
     cur.close()

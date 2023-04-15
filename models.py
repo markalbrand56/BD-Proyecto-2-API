@@ -63,3 +63,14 @@ class Record(BaseModel):
     cirugias: str
     status: str
     unidad_salud_id: int
+
+class BodegaSearch(BaseModel):
+    id: int
+
+class Bodega(BaseModel):
+    id: int
+    detalle: str
+    existencia: int
+    cantidad: int  # cantidad mínima de existencia
+    expiracion: str
+    unidad_salud_id: int
