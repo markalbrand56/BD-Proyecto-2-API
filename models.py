@@ -117,3 +117,9 @@ class MedicineResponse(BaseModel):
     detalle: str
 
 
+class BinnacleResponse(BaseModel):
+    accion: str
+    tabla: str
+    fecha: str
+    usuario_dpi: str
+    usuario: str | None

@@ -443,5 +443,31 @@ async def get_medicines(id: models.MedicineSearch) -> list[models.MedicineRespon
 #######################################################################################################################
 # ---------------------------------------------- Binnacle.jsx ------------------------------------------------------- #
 #######################################################################################################################
-# @app.get("/binnacle/")
-# async def get_binnacle(id: models.BinnacleRequest) -> list[models.BinnacleResponse] | dict:
+@app.get("/binnacle/")
+async def get_binnacle() -> list[models.BinnacleResponse] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"SELECT * FROM bitacora"
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    if rows is None or len(rows) == 0:
+        cur.close()
+        conn.close()
+        return {"message": "No records found"}
+
+    result = []
+    for row in rows:
+        result.append(
+            models.BinnacleResponse(
+                accion=row[0],
+                tabla=row[1],
+                fecha=str(row[2]),
+                usuario_dpi=row[3],
+                usuario=row[4]
+            )
+        )
+
+    cur.close()
+    conn.close()
+    return result
