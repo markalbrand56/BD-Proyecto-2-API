@@ -360,13 +360,15 @@ async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.
     conn = connect_db()
     cur = conn.cursor()
     # ASUMIENDO QUE SOLO PUEDE HABER UN REGISTRO CON NULL EN FECHA_SALIDA A LA VEZ
-    query = f"UPDATE trabaja SET fecha_salida = date {datetime.date.today()} where fecha_salida is null and medico_dpi = '{work_history.medico_dpi}'"
+    query = f"UPDATE trabaja SET fecha_salida = date '{datetime.date.today()}' where fecha_salida is null and medico_dpi = '{work_history.medico_dpi}'"
     try:
         cur.execute(query)
         conn.commit()
 
         query = f"INSERT INTO trabaja values (date '{datetime.date.today()}', null, '{work_history.medico_dpi}', {work_history.unidad_salud_id})"
+        print(f"Insert query: {query}")
         cur.execute(query)
+        conn.commit()
 
         cur.execute(f"SELECT * FROM trabaja WHERE medico_dpi = '{work_history.medico_dpi}' and unidad_salud_id = {work_history.unidad_salud_id} and fecha_entrada = date '{datetime.date.today()}'")
         row = cur.fetchone()
@@ -375,10 +377,10 @@ async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.
         conn.close()
 
         return models.WorkHistory(
-            medico_dpi=row[0],
-            unidad_salud_id=row[1],
-            fecha_entrada=row[2],
-            fecha_salida=row[3]
+            fecha_entrada=str(row[0]),
+            fecha_salida=str(row[1]),
+            medico_dpi=row[2],
+            unidad_salud_id=row[3]
         )
     except Exception as e:
         print(e)
