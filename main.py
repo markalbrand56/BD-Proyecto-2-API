@@ -78,7 +78,10 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
     if row is None:
         cur.close()
         conn.close()
-        return {"message": "Invalid username or password"}
+        return {
+            "logged": False,
+            "message": "Invalid username or password"
+        }
     else:
         query = f"SELECT * FROM medico WHERE dpi = '{user.dpi}'"
         cur.execute(query)
@@ -86,19 +89,24 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
         if row is None:
             cur.close()
             conn.close()
-            return {"message": "Invalid username or password"}
+            return {
+                "logged": False,
+                "message": "Invalid username or password"
+            }
         else:
             cur.close()
             conn.close()
-            return models.UserDetails(
-                dpi=row[0],
-                nombre=row[1],
-                direccion=row[2],
-                telefono=row[3],
-                num_colegiado=row[4],
-                especialidad=row[5]
-                # unidad_de_salud=row[6]
-            )
+            return {
+                "logged": True,
+                "user": models.UserDetails(
+                    dpi=row[0],
+                    nombre=row[1],
+                    direccion=row[2],
+                    telefono=row[3],
+                    num_colegiado=row[4],
+                    especialidad=row[5]
+                )
+            }
 
 
 #######################################################################################################################
