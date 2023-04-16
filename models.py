@@ -108,3 +108,12 @@ class AccountUpdate(BaseModel):
     direccion: str
     telefono: str
     especialidad: str
+
+
+class MedicineSearch(BaseModel):
+    unidad_salud: str
+
+
+class MedicineResponse(BaseModel):
+    id: int
+    detalle: str

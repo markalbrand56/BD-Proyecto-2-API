@@ -406,3 +406,39 @@ async def update_account(account: models.AccountUpdate) -> models.UserDetails | 
     except Exception as e:
         print(e)
         return {"message": "Error updating account"}
+
+
+#######################################################################################################################
+# ---------------------------------------------- AddRecord.jsx ------------------------------------------------------ #
+#######################################################################################################################
+@app.get("/inventory/medicines")
+async def get_medicines(id: models.MedicineSearch) -> list[models.MedicineResponse] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    id_unidad_query = f"SELECT id FROM unidad_salud WHERE nombre = '{id.unidad_salud}'"
+    cur.execute(id_unidad_query)
+    id_unidad = cur.fetchone()[0]
+    print(id_unidad)
+
+    query = f"SELECT b.id, b.detalle FROM bodega b WHERE b.unidad_salud_id = {id_unidad}"
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    if rows is None or len(rows) == 0:
+        cur.close()
+        conn.close()
+        return {"message": "No records found"}
+
+    result = []
+    for row in rows:
+        result.append(
+            models.MedicineResponse(
+                id=row[0],
+                detalle=row[1]
+            )
+        )
+
+    cur.close()
+    conn.close()
+    return result
