@@ -424,7 +424,13 @@ async def get_medicines(id: models.MedicineSearch) -> list[models.MedicineRespon
 
     id_unidad_query = f"SELECT id FROM unidad_salud WHERE nombre = '{id.unidad_salud}'"
     cur.execute(id_unidad_query)
-    id_unidad = cur.fetchone()[0]
+    row = cur.fetchone()
+    if row is None:
+        cur.close()
+        conn.close()
+        return {"message": "No unit found"}
+
+    id_unidad = row[0]
     print(id_unidad)
 
     query = f"SELECT b.id, b.detalle FROM bodega b WHERE b.unidad_salud_id = {id_unidad}"
