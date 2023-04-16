@@ -58,7 +58,7 @@ class Bodega(BaseModel):
     id: int
     detalle: str
     cantidad: int
-    expiracion: str
+    expiracion: str | None
     unidad_salud_id: int
 
 
