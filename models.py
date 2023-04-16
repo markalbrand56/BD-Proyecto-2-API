@@ -115,3 +115,5 @@ class MedicineSearch(BaseModel):
 class MedicineResponse(BaseModel):
     id: int
     detalle: str
+
+
