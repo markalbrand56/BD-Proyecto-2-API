@@ -150,7 +150,6 @@ async def get_healthcenters() -> list[str]:
     query = 'SELECT nombre FROM unidad_salud'
     cur.execute(query)
     rows = cur.fetchall()
-    print(rows)
     result = []
     for row in rows:
         result.append(row[0])
@@ -344,10 +343,10 @@ async def get_work_history(id: models.AccountRequest) -> list[models.WorkHistory
     for row in rows:
         result.append(
             models.WorkHistory(
-                medico_dpi=row[0],
-                unidad_salud_id=row[1],
-                fecha_entrada=row[2],
-                fecha_salida=row[3]
+                fecha_entrada=str(row[0]),
+                fecha_salida=str(row[1]),
+                medico_dpi=row[2],
+                unidad_salud_id=row[3]
             )
         )
 
