@@ -115,6 +115,7 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
 
 @app.post("/user/signup/")
 async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
+    # TODO Revisar querys
     conn = connect_db()
     cur = conn.cursor()
     query_usuario = f"INSERT INTO usuario VALUES ('{user.dpi}', '{user.rol}', '{user.password}')"
@@ -162,7 +163,7 @@ async def get_healthcenters() -> list[str]:
 # ----------------------------------------------- Record.jsx -------------------------------------------------------- #
 #######################################################################################################################
 
-@app.get("/record/")
+@app.post("/record/")
 async def get_records(id: models.RecordSearch) -> list[models.Record] | dict:
     conn = connect_db()
     cur = conn.cursor()
@@ -185,7 +186,7 @@ async def get_records(id: models.RecordSearch) -> list[models.Record] | dict:
                 enfermedad_id=row[3],
                 examenes=row[4],
                 diagnosticos=row[5],
-                fecha_atencion=row[6],
+                fecha_atencion=str(row[6]),
                 cirugias=row[7],
                 status=row[8],
                 unidad_salud_id=row[9]
@@ -201,7 +202,7 @@ async def get_records(id: models.RecordSearch) -> list[models.Record] | dict:
 # --------------------------------------------- Inventory.jsx ------------------------------------------------------- #
 #######################################################################################################################
 
-@app.get("/inventory/")
+@app.post("/inventory/")
 async def get_inventory(id_unidad: models.BodegaSearch) -> list[models.Bodega] | dict:
     conn = connect_db()
     cur = conn.cursor()
@@ -297,7 +298,7 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
 # -------------------------------------------------- MyAccount.jsx -------------------------------------------------- #
 #######################################################################################################################
 
-@app.get("/account/")
+@app.post("/account/")
 async def get_account(id: models.AccountRequest) -> models.AccountDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
@@ -326,7 +327,7 @@ async def get_account(id: models.AccountRequest) -> models.AccountDetails | dict
     return result
 
 
-@app.get("/account/workHistory/")
+@app.post("/account/workHistory/")
 async def get_work_history(id: models.AccountRequest) -> list[models.WorkHistory] | dict:
     conn = connect_db()
     cur = conn.cursor()

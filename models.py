@@ -41,11 +41,11 @@ class Record(BaseModel):
     no_expediente: int
     paciente_dpi: str
     medico_encargado: str
-    enfermedad_id: int
-    examenes: str
-    diagnosticos: str
+    enfermedad_id: int | None
+    examenes: str | None
+    diagnosticos: str | None
     fecha_atencion: str
-    cirugias: str
+    cirugias: str | None
     status: str
     unidad_salud_id: int
 
