@@ -57,8 +57,7 @@ class BodegaSearch(BaseModel):
 class Bodega(BaseModel):
     id: int
     detalle: str
-    existencia: int
-    cantidad: int  # cantidad mínima de existencia
+    cantidad: int
     expiracion: str
     unidad_salud_id: int
 

@@ -212,10 +212,9 @@ async def get_inventory(id_unidad: models.BodegaSearch) -> list[models.Bodega] |
             models.Bodega(
                 id=row[0],
                 detalle=row[1],
-                existencia=row[2],
-                cantidad=row[3],
-                expiracion=row[4],
-                unidad_de_salud_id=row[5]
+                cantidad=row[2],
+                expiracion=str(row[3]),
+                unidad_salud_id=row[4]
             )
         )
 
