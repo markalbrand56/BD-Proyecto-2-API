@@ -118,7 +118,7 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
 
-    query = f"SELECT id FROM unidad_de_salud WHERE nombre = '{user.unidad_de_salud_nombre}'"
+    query = f"SELECT id FROM unidad_salud WHERE nombre = '{user.unidad_de_salud_nombre}'"
     unidad_salud_id = cur.execute(query).fetchone()[0]
 
     try:
