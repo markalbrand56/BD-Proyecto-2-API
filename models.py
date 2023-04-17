@@ -51,7 +51,7 @@ class Record(BaseModel):
 
 
 class BodegaSearch(BaseModel):
-    id: int
+    nombre_unidad_salud: str
 
 
 class Bodega(BaseModel):

@@ -249,10 +249,14 @@ async def get_records(id: models.RecordSearch) -> list[models.Record] | dict:
 #######################################################################################################################
 
 @app.post("/inventory/")
-async def get_inventory(id_unidad: models.BodegaSearch) -> list[models.Bodega] | dict:
+async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodega] | dict:
     conn = connect_db()
     cur = conn.cursor()
-    query = f"SELECT * FROM bodega WHERE unidad_salud_id = '{id_unidad.id}'"
+
+    query = f"SELECT id FROM unidad_salud WHERE nombre = '{nombre_unidad.nombre_unidad_salud}'"
+    id_unidad = cur.execute(query).fetchone()[0]
+
+    query = f"SELECT * FROM bodega WHERE unidad_salud_id = '{id_unidad}'"
     cur.execute(query)
     rows = cur.fetchall()
 
