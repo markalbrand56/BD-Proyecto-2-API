@@ -115,16 +115,63 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
 
 @app.post("/user/signup/")
 async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
-    # TODO Revisar querys
     conn = connect_db()
     cur = conn.cursor()
-    query_usuario = f"INSERT INTO usuario VALUES ('{user.dpi}', '{user.rol}', '{user.password}')"
-    query_medico = f"INSERT INTO medico VALUES ('{user.dpi}', '{user.nombre}', '{user.direccion}', '{user.telefono}', '{user.num_colegiado}', '{user.especialidad}')"
-    query_trabaja = f"INSERT INTO trabaja VALUES ('{datetime.date.today()}', null, '{user.dpi}', '{user.unidad_de_salud}')"
+
+    query = f"SELECT id FROM unidad_de_salud WHERE nombre = '{user.unidad_de_salud_nombre}'"
+    unidad_salud_id = cur.execute(query).fetchone()[0]
+
+    try:
+        query_usuario = f"INSERT INTO usuario VALUES ('{user.dpi}', '{user.rol}', '{user.password}')"
+        cur.execute(query_usuario)
+        conn.commit()
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {
+            "created": False,
+            "user": None,
+        }
+    try:
+        query_medico = f"INSERT INTO medico VALUES ('{user.dpi}', '{user.nombre}', '{user.direccion}', '{user.telefono}', '{user.num_colegiado}', '{user.especialidad}')"
+        cur.execute(query_medico)
+        conn.commit()
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {
+            "created": False,
+            "user": None,
+        }
+
+    try:
+        query_trabaja = f"INSERT INTO trabaja VALUES ('{datetime.date.today()}', null, '{user.dpi}', '{unidad_salud_id}')"
+        cur.execute(query_trabaja)
+        conn.commit()
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {
+            "created": False,
+            "user": None,
+        }
+
+
+
     print(query_usuario)
     print(query_medico)
     print(query_trabaja)
-    return {"message": "User created successfully"}
+    return {
+        "created": True,
+        "user": models.UserDetails(
+            dpi=user.dpi,
+            nombre=user.nombre,
+            direccion=user.direccion,
+            telefono=user.telefono,
+            num_colegiado=user.num_colegiado,
+            especialidad=user.especialidad
+        )
+    }
 
 
 @app.get("/user/dpi/")

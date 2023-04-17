@@ -19,7 +19,7 @@ class UserSignIn(BaseModel):
     telefono: str
     num_colegiado: str
     especialidad: str
-    unidad_de_salud: int
+    unidad_de_salud_nombre: str
     rol: str
     password: str
 
