@@ -309,7 +309,10 @@ async def get_account(id: models.AccountRequest) -> models.AccountDetails | dict
     if row is None:
         cur.close()
         conn.close()
-        return {"message": "No account found"}
+        return {
+            "found": False,
+            "message": "No records found"
+        }
 
     result = models.AccountDetails(
         dpi=row[0],
@@ -323,7 +326,10 @@ async def get_account(id: models.AccountRequest) -> models.AccountDetails | dict
 
     cur.close()
     conn.close()
-    return result
+    return {
+        "found": True,
+        "account": result
+    }
 
 
 @app.post("/account/workHistory/")
