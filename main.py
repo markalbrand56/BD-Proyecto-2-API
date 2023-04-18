@@ -68,7 +68,7 @@ async def get_users() -> list[models.User]:
 # ------------------------------------------- UserLogin.jsx --------------------------------------------------------- #
 #######################################################################################################################
 @app.post("/user/login/")
-async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
+async def login_user(user: models.UserLogin) -> models.UserSuccessLogin | dict:
     conn = connect_db()
     cur = conn.cursor()
     query = f"SELECT * FROM usuario WHERE dpi = '{user.dpi}' AND contrasena = '{user.password}'"
@@ -83,7 +83,7 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
             "message": "Invalid username or password"
         }
     else:
-        query = f"SELECT * FROM medico WHERE dpi = '{user.dpi}'"
+        query = f"SELECT rol FROM usuario WHERE dpi = '{user.dpi}'"
         cur.execute(query)
         row = cur.fetchone()
         if row is None:
@@ -98,13 +98,9 @@ async def login_user(user: models.UserLogin) -> models.UserDetails | dict:
             conn.close()
             return {
                 "logged": True,
-                "user": models.UserDetails(
-                    dpi=row[0],
-                    nombre=row[1],
-                    direccion=row[2],
-                    telefono=row[3],
-                    num_colegiado=row[4],
-                    especialidad=row[5]
+                "user": models.UserSuccessLogin(
+                    dpi=user.dpi,
+                    rol=row[0]
                 )
             }
 

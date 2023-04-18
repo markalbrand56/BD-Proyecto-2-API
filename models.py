@@ -33,6 +33,11 @@ class UserDetails(BaseModel):
     especialidad: str
 
 
+class UserSuccessLogin(BaseModel):
+    dpi: str
+    rol: str
+
+
 class RecordSearch(BaseModel):
     dpi: str
 
