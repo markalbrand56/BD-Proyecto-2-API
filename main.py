@@ -260,7 +260,8 @@ async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodeg
     cur = conn.cursor()
 
     query = f"SELECT id FROM unidad_salud WHERE nombre = '{nombre_unidad.nombre_unidad_salud}'"
-    id_unidad = cur.execute(query).fetchone()[0]
+    cur.execute(query)
+    id_unidad = cur.fetchone()[0]
 
     query = f"SELECT * FROM bodega WHERE unidad_salud_id = '{id_unidad}'"
     cur.execute(query)
