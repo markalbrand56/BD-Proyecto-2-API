@@ -119,7 +119,8 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
     cur = conn.cursor()
 
     query = f"SELECT id FROM unidad_salud WHERE nombre = '{user.unidad_de_salud_nombre}'"
-    unidad_salud_id = cur.execute(query).fetchone()[0]
+    cur.execute(query)
+    unidad_salud_id = cur.fetchone()[0]
 
     try:
         query_usuario = f"INSERT INTO usuario VALUES ('{user.dpi}', '{user.rol}', '{user.password}')"
