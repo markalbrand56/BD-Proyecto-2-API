@@ -131,6 +131,7 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
         conn.close()
         return {
             "created": False,
+            "query": query_usuario,
             "user": None,
         }
     try:
@@ -142,6 +143,7 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
         conn.close()
         return {
             "created": False,
+            "query": query_medico,
             "user": None,
         }
 
@@ -154,6 +156,7 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
         conn.close()
         return {
             "created": False,
+            "query": query_trabaja,
             "user": None,
         }
 
