@@ -119,6 +119,7 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
     cur = conn.cursor()
 
     query_auth = f"set my.app_user = '{user.dpi}'"
+    cur.execute(query_auth)
 
     query = f"SELECT id FROM unidad_salud WHERE nombre = '{user.unidad_de_salud_nombre}'"
     cur.execute(query)
