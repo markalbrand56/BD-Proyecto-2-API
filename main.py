@@ -448,7 +448,7 @@ async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.
 
 
 @app.put("/account/")
-async def update_account(account: models.AccountUpdate) -> models.UserDetails | dict:
+async def update_account(account: models.AccountUpdate) -> models.UserDetailsUpdate | dict:
     conn = connect_db()
     cur = conn.cursor()
 
@@ -463,18 +463,23 @@ async def update_account(account: models.AccountUpdate) -> models.UserDetails | 
         cur.execute(f"SELECT * FROM medico WHERE dpi = '{account.dpi}'")
         row = cur.fetchone()
 
+        query = f"SELECT unidad_salud_id FROM trabaja WHERE medico_dpi = '{account.dpi}' and fecha_salida is null"
+        cur.execute(query)
+        unidad_salud_id = cur.fetchone()[0]
+
         cur.close()
         conn.close()
 
         return {
             "updated": True,
-            "account": models.UserDetails(
+            "account": models.UserDetailsUpdate(
                 dpi=row[0],
                 nombre=row[1],
                 direccion=row[2],
                 telefono=row[3],
                 num_colegiado=row[4],
                 especialidad=row[5],
+                unidad_salud_id=unidad_salud_id
             )
         }
     except Exception as e:

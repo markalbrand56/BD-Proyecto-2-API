@@ -33,6 +33,16 @@ class UserDetails(BaseModel):
     especialidad: str
 
 
+class UserDetailsUpdate(BaseModel):
+    dpi: str
+    nombre: str
+    direccion: str
+    telefono: str
+    num_colegiado: str
+    especialidad: str
+    unidad_salud_id: int
+
+
 class UserSuccessLogin(BaseModel):
     dpi: str
     rol: str
