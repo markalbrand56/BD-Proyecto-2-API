@@ -128,9 +128,9 @@ async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
     query_medico = f"INSERT INTO medico VALUES ('{user.dpi}', '{user.nombre}', '{user.direccion}', '{user.telefono}', '{user.num_colegiado}', '{user.especialidad}')"
     query_trabaja = f"INSERT INTO trabaja VALUES ('{datetime.date.today()}', null, '{user.dpi}', '{unidad_salud_id}')"
 
-    print(query_usuario)
-    print(query_medico)
-    print(query_trabaja)
+    # print(query_usuario)
+    # print(query_medico)
+    # print(query_trabaja)
 
     try:
         cur.execute(query_usuario)
