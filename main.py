@@ -251,13 +251,18 @@ async def get_records(id: models.RecordSearch) -> list[models.Record] | dict:
 #######################################################################################################################
 
 @app.post("/inventory/")
-async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodega] | dict:
+async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodega] | None:
     conn = connect_db()
     cur = conn.cursor()
 
     query = f"SELECT id FROM unidad_salud WHERE nombre = '{nombre_unidad.nombre_unidad_salud}'"
-    cur.execute(query)
-    id_unidad = cur.fetchone()[0]
+    try:
+        cur.execute(query)
+        id_unidad = cur.fetchone()[0]
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return None
 
     query = f"SELECT * FROM bodega WHERE unidad_salud_id = '{id_unidad}'"
     cur.execute(query)
@@ -266,7 +271,7 @@ async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodeg
     if rows is None or len(rows) == 0:
         cur.close()
         conn.close()
-        return {"message": "No records found"}
+        return None
 
     result = []
     for row in rows:
@@ -287,6 +292,7 @@ async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodeg
 
 @app.put("/inventory/")
 async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega | dict:
+    #TODO Auth my.app_user al modificar la existencia. Necesitaria modificar los parámetros
     conn = connect_db()
     cur = conn.cursor()
     query = f"UPDATE bodega SET existencia = {inventory.existencia} WHERE id = {inventory.id}"
@@ -417,6 +423,7 @@ async def get_work_history(id: models.AccountRequest) -> list[models.WorkHistory
 
 @app.put("/account/workHistory/")
 async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.WorkHistory | dict:
+    # TODO Auth my.app_user al modificar el work hisotry. Necesitaria modificar los parámetros
     conn = connect_db()
     cur = conn.cursor()
     # ASUMIENDO QUE SOLO PUEDE HABER UN REGISTRO CON NULL EN FECHA_SALIDA A LA VEZ
