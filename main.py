@@ -390,29 +390,43 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
     cur = conn.cursor()
     user_auth = f"set my.app_user = '{product.id_user_auth}'"
     cur.execute(user_auth)
-    query = f"INSERT INTO bodega (detalle, cantidad, expiracion, unidad_salud_id) VALUES ('{product.detalle}', {product.cantidad}, date {product.expiracion}, {product.unidad_salud_id})"
     try:
+        query = f"INSERT INTO requisito_minimo VALUES ('{product.detalle}', {product.cantidad_minima}, {product.unidad_salud_id})"
+        print(query)
+        cur.execute(query)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "added": False,
+            "message": "Error adding product to requsito_minimo"
+        }
+
+    try:
+        query = f"INSERT INTO bodega (detalle, cantidad, expiracion, unidad_salud_id) VALUES ('{product.detalle}', {product.cantidad}, date '{product.expiracion}', {product.unidad_salud_id})"
+        print(query)
         cur.execute(query)
         conn.commit()
 
-        query = f"SELECT * FROM bodega WHERE detalle = '{product.detalle}' and existencia = true and cantidad = {product.cantidad} and expiracion = date '{product.expiracion}' and unidad_salud_id = {product.unidad_salud_id} "
         print(query)
         cur.execute(query)
-        row = cur.fetchone()
 
         cur.close()
         conn.close()
 
-        return models.Bodega(
-            id=row[0],
-            detalle=row[1],
-            cantidad=row[2],
-            expiracion=str(row[3]),
-            unidad_salud_id=row[4]
-        )
+        return {
+            "added": True,
+        }
     except Exception as e:
         print(e)
-        return {"message": "Error adding product"}
+        cur.close()
+        conn.close()
+        return {
+            "added": False,
+            "message": "Error adding product to bodega"
+        }
 
 
 #######################################################################################################################

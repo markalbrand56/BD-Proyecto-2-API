@@ -98,6 +98,7 @@ class ProductAdd(BaseModel):
     id_user_auth: str
     detalle: str
     cantidad: int
+    cantidad_minima: int | None
     expiracion: str
     unidad_salud_id: int
 
