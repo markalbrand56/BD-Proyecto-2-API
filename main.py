@@ -211,7 +211,14 @@ async def get_healthcenters() -> list[str]:
 async def get_healthcenter(id: str) -> models.HealthCenter | dict:
     conn = connect_db()
     cur = conn.cursor()
-    query = f'SELECT * FROM unidad_salud WHERE id = \'{id}\''
+    try:
+        id = int(id)
+    except Exception as e:
+        return {
+            "found": False,
+            "message": "Invalid id"
+        }
+    query = f'SELECT * FROM unidad_salud WHERE id = {id}'
     print(query)
 
     cur.execute(query)
