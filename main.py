@@ -110,7 +110,7 @@ async def login_user(user: models.UserLogin) -> models.UserSuccessLogin | dict:
 #######################################################################################################################
 
 @app.post("/user/signup/")
-async def signup_user(user: models.UserSignIn) -> models.UserDetails | dict:
+async def sign_up_user_medico(user: models.UserSignIn) -> models.UserDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
 
@@ -208,7 +208,7 @@ async def get_healthcenters() -> list[str]:
 
 
 @app.get("/healthcenter/{id}")
-async def get_healthcenter(id: str) -> models.HealthCenter | dict:
+async def get_healthcenter_by_id(id: str) -> models.HealthCenter | dict:
     conn = connect_db()
     cur = conn.cursor()
     try:
@@ -294,6 +294,20 @@ async def create_record(record: models.NewRecord) -> dict:
     cur.execute(query_auth)
 
     # TODO AÑADIR UN RECORD
+    # paciente_dpi: STRING
+    # medico_encargado: STRING
+    # enfermedad: STRING | Null
+    # evolución: STRING | Nill
+    # examenes: STRING | Null
+    # diagnosticos: STRING | Null
+    # fecha_inicio: STRING
+    # fecha_salida: STRING | NULL // FECHA DE CIERRE DE EXPEDIENTE
+    # cirugias: STRING | Null
+    # status: STRING | NUll
+    # unidad_salud_id: INT
+    # dpi_auth: STRING
+    # medicamentos_id: [INTs]
+
     return{
         "LEANME": "NO ESTA IMPLEMENTADO AÚN"
     }
@@ -304,7 +318,7 @@ async def create_record(record: models.NewRecord) -> dict:
 #######################################################################################################################
 
 @app.post("/inventory/")
-async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodega] | None:
+async def get_inventory_by_bodega_id(nombre_unidad: models.BodegaSearch) -> list[models.Bodega] | None:
     conn = connect_db()
     cur = conn.cursor()
 
@@ -344,7 +358,7 @@ async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodeg
 
 
 @app.put("/inventory/")
-async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega | dict:
+async def update_product_from_inventory(inventory: models.InventoryUpdate) -> models.Bodega | dict:
     conn = connect_db()
     cur = conn.cursor()
 
