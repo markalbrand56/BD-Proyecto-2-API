@@ -99,7 +99,7 @@ class ProductAdd(BaseModel):
     detalle: str
     cantidad: int
     cantidad_minima: int | None
-    expiracion: str
+    expiracion: str | None
     unidad_salud_id: int
 
 
