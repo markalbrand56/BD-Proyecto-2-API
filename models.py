@@ -61,6 +61,21 @@ class Record(BaseModel):
     unidad_salud_id: int
 
 
+class NewRecord(BaseModel):
+    paciente_dpi: str
+    medico_encargado: str
+    enfermedad_id: int | None
+    examenes: str | None
+    diagnosticos: str | None
+    fecha_atencion: str
+    fecha_salida: str | None  # Cierre de expediente
+    cirugias: str | None
+    status: str | None
+    unidad_salud_id: int
+    dpi_auth: str
+    medicamentos: list[int] | None
+
+
 class BodegaSearch(BaseModel):
     nombre_unidad_salud: str
 
@@ -89,7 +104,6 @@ class ProductAdd(BaseModel):
 
 class AccountRequest(BaseModel):
     dpi: str
-
 
 
 class AccountDetails(BaseModel):

@@ -285,6 +285,20 @@ async def get_records_by_dpi(dpi: str) -> list[models.Record] | dict:
     return result
 
 
+@app.post("/record/")
+async def create_record(record: models.NewRecord) -> dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query_auth = f"set my.app_user = '{record.dpi_auth}'"
+    cur.execute(query_auth)
+
+    # TODO AÑADIR UN RECORD
+    return{
+        "LEANME": "NO ESTA IMPLEMENTADO AÚN"
+    }
+
+
 #######################################################################################################################
 # --------------------------------------------- Inventory.jsx ------------------------------------------------------- #
 #######################################################################################################################
