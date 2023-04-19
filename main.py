@@ -821,6 +821,42 @@ async def get_binnacle() -> list[models.BinnacleResponse] | dict:
     conn.close()
     return result
 
+#######################################################################################################################
+# ---------------------------------------------- Pacientes ---------------------------------------------------------- #
+#######################################################################################################################
+
+@app.get("/patients/{dpi}")
+async def get_patient_by_dpi(dpi: str) -> models.PatientDetails | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"SELECT * FROM paciente WHERE dpi = '{dpi}'"
+    cur.execute(query)
+    row = cur.fetchone()
+
+    if row is None:
+        cur.close()
+        conn.close()
+        return {
+            "found": False,
+            "patient": None,
+            "message": "No patient found"
+        }
+
+    return {
+        "found": True,
+        "patient": models.PatientDetails(
+            dpi=row[0],
+            nombre=row[1],
+            estatura=row[2],
+            peso=row[3],
+            telefono=row[4],
+            adicciones=row[5],
+            direccion=row[6],
+            enfermedades_hereditarias=row[7]
+        )
+    }
+
 
 # TODO LISTA DE MEDICINAS YA VENCIDAS
 # TODO LISTA DE MEDICINAS POR VENCERSE EN EL PROXIMO MES

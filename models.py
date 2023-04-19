@@ -164,3 +164,14 @@ class HealthCenter(BaseModel):
 
 class HealthCenterName(BaseModel):
     nombre: str
+
+
+class PatientDetails(BaseModel):
+    dpi: str
+    nombre: str
+    estatura: float | None
+    peso: float | None
+    telefono: str | None
+    adicciones: str | None
+    direccion: str | None
+    enfermedades_hereditarias: str | None
