@@ -48,10 +48,6 @@ class UserSuccessLogin(BaseModel):
     rol: str
 
 
-class RecordSearch(BaseModel):
-    dpi: str
-
-
 class Record(BaseModel):
     no_expediente: int
     paciente_dpi: str

@@ -250,11 +250,11 @@ async def get_healthcenter(id: str) -> models.HealthCenter | dict:
 # ----------------------------------------------- Record.jsx -------------------------------------------------------- #
 #######################################################################################################################
 
-@app.post("/record/")
-async def get_records(id: models.RecordSearch) -> list[models.Record] | dict:
+@app.get("/record/{dpi}")
+async def get_records_by_dpi(dpi: str) -> list[models.Record] | dict:
     conn = connect_db()
     cur = conn.cursor()
-    query = f"SELECT * FROM expediente WHERE paciente_dpi = '{id.dpi}'"
+    query = f"SELECT * FROM expediente WHERE paciente_dpi = '{dpi}'"
     cur.execute(query)
     rows = cur.fetchall()
 
