@@ -207,6 +207,38 @@ async def get_healthcenters() -> list[str]:
     return result
 
 
+@app.get("/healthcenter/{id}")
+async def get_healthcenter(id: str) -> models.HealthCenter | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f'SELECT * FROM unidad_salud WHERE id = \'{id}\''
+    print(query)
+
+    cur.execute(query)
+    row = cur.fetchone()
+
+    if row is None:
+        cur.close()
+        conn.close()
+        return {
+            "found": False,
+            "message": "Health center not found"
+        }
+
+    result = models.HealthCenter(
+        id=row[0],
+        tipo=row[1],
+        nombre=row[2],
+        direccion=row[3],
+    )
+    cur.close()
+    conn.close()
+    return {
+        "found": True,
+        "healthcenter": result
+    }
+
+
 #######################################################################################################################
 # ----------------------------------------------- Record.jsx -------------------------------------------------------- #
 #######################################################################################################################
@@ -292,7 +324,7 @@ async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodeg
 
 @app.put("/inventory/")
 async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega | dict:
-    #TODO Auth my.app_user al modificar la existencia. Necesitaria modificar los parámetros
+    # TODO Auth my.app_user al modificar la existencia. Necesitaria modificar los parámetros
     conn = connect_db()
     cur = conn.cursor()
     query = f"UPDATE bodega SET existencia = {inventory.existencia} WHERE id = {inventory.id}"

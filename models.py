@@ -138,3 +138,10 @@ class BinnacleResponse(BaseModel):
     fecha: str
     usuario_dpi: str
     usuario: str | None
+
+
+class HealthCenter(BaseModel):
+    id: int
+    tipo: str
+    nombre: str
+    direccion: str
