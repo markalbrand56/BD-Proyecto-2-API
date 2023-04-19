@@ -340,8 +340,117 @@ async def create_record(record: models.NewRecord) -> dict:
     # dpi_auth: STRING
     # medicamentos_id: [INTs]
 
+    # insert into expediente (paciente_dpi, medico_encargado, fecha_ingreso, status)
+
+    # Primero, se insertan todos los datos esenciales del expediente
+    id_expediente = None
+    query = f"INSERT INTO expediente (paciente_dpi, medico_encargado, fecha_ingreso, status) VALUES ('{record.paciente_dpi}', '{record.medico_encargado}', '{record.fecha_atencion}', '{record.status}') RETURNING no_expediente"
+    try:
+        cur.execute(query)
+        id_expediente = cur.fetchone()[0]
+        conn.commit()
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "added": False,
+            "message": "Error al crear el expediente",
+            "query": query
+        }
+
+    if record.enfermedad is not None:
+        query = f"UPDATE expediente SET enfermedad_id = '{record.enfermedad}' WHERE no_expediente = {id_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error al añadir la enfermedad al expediente",
+                "query": query
+            }
+
+    if record.evolucion is not None:
+        query = f"UPDATE expediente SET evolucion = '{record.evolucion}' WHERE no_expediente = {id_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error al añadir la evolución al expediente",
+                "query": query
+            }
+
+    if record.examenes is not None:
+        query = f"UPDATE expediente SET examenes = '{record.examenes}' WHERE no_expediente = {id_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error al añadir los exámenes al expediente",
+                "query": query
+            }
+    if record.diagnosticos is not None:
+        query = f"UPDATE expediente SET diagnosticos = '{record.diagnosticos}' WHERE no_expediente = {id_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error al añadir los diagnósticos al expediente",
+                "query": query
+            }
+    if record.fecha_salida is not None:
+        query = f"UPDATE expediente SET fecha_salida = date '{record.fecha_salida}' WHERE no_expediente = {id_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error al añadir la fecha de salida al expediente",
+                "query": query
+            }
+    if record.cirugias is not None:
+        query = f"UPDATE expediente SET cirugias = '{record.cirugias}' WHERE no_expediente = {id_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error al añadir las cirugías al expediente",
+                "query": query
+            }
+
+    if record.medicamentos is not None:
+        pass
+
     return {
-        "LEANME": "NO ESTA IMPLEMENTADO AÚN"
+        "added": True,
     }
 
 
@@ -436,18 +545,21 @@ async def add_new_product(product: models.ProductAdd) -> models.Bodega | dict:
     cur = conn.cursor()
     user_auth = f"set my.app_user = '{product.id_user_auth}'"
     cur.execute(user_auth)
-    try:
-        query = f"INSERT INTO requisito_minimo VALUES ('{product.detalle}', {product.cantidad_minima}, {product.unidad_salud_id})"
-        cur.execute(query)
-        conn.commit()
-    except Exception as e:
-        print(e)
-        cur.close()
-        conn.close()
-        return {
-            "added": False,
-            "message": "Error adding product to requsito_minimo"
-        }
+
+    # Si trae cantidad mínima, se agrega a requisito_minimo
+    if product.cantidad_minima is not None:
+        try:
+            query = f"INSERT INTO requisito_minimo VALUES ('{product.detalle}', {product.cantidad_minima}, {product.unidad_salud_id})"
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error adding product to requsito_minimo"
+            }
 
     try:
         if product.expiracion is None:
