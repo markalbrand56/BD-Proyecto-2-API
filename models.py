@@ -159,3 +159,7 @@ class HealthCenter(BaseModel):
     tipo: str
     nombre: str
     direccion: str
+
+
+class HealthCenterName(BaseModel):
+    nombre: str

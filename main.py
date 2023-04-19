@@ -245,6 +245,37 @@ async def get_healthcenter_by_id(id: str) -> models.HealthCenter | dict:
         "healthcenter": result
     }
 
+@app.post("/healthcenter/getByName/")
+async def get_healthcenter_by_name(healthcenter: models.HealthCenterName) -> models.HealthCenter | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+    query = f"SELECT * FROM unidad_salud WHERE nombre = '{healthcenter.nombre}'"
+    print(query)
+
+    cur.execute(query)
+    row = cur.fetchone()
+
+    if row is None:
+        cur.close()
+        conn.close()
+        return {
+            "found": False,
+            "message": "Health center not found"
+        }
+
+    result = models.HealthCenter(
+        id=row[0],
+        tipo=row[1],
+        nombre=row[2],
+        direccion=row[3],
+    )
+    cur.close()
+    conn.close()
+    return {
+        "found": True,
+        "healthcenter": result
+    }
+
 
 #######################################################################################################################
 # ----------------------------------------------- Record.jsx -------------------------------------------------------- #
