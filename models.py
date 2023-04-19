@@ -80,6 +80,7 @@ class Bodega(BaseModel):
 class InventoryUpdate(BaseModel):
     id: int
     existencia: int
+    dpi_auth: str
 
 
 class ProductAdd(BaseModel):

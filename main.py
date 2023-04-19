@@ -324,10 +324,13 @@ async def get_inventory(nombre_unidad: models.BodegaSearch) -> list[models.Bodeg
 
 @app.put("/inventory/")
 async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega | dict:
-    # TODO Auth my.app_user al modificar la existencia. Necesitaria modificar los parámetros
     conn = connect_db()
     cur = conn.cursor()
-    query = f"UPDATE bodega SET existencia = {inventory.existencia} WHERE id = {inventory.id}"
+
+    query_auth = f"set my.app_user = '{inventory.dpi_auth}'"
+    cur.execute(query_auth)
+
+    query = f"UPDATE bodega SET cantidad = {inventory.existencia} WHERE id = {inventory.id}"
     try:
         cur.execute(query)
         conn.commit()
@@ -338,16 +341,22 @@ async def update_inventory(inventory: models.InventoryUpdate) -> models.Bodega |
         cur.close()
         conn.close()
 
-        return models.Bodega(
-            id=row[0],
-            detalle=row[1],
-            cantidad=row[2],
-            expiracion=row[3],
-            unidad_de_salud_id=row[4]
-        )
+        return {
+            "updated": True,
+            "inventory": models.Bodega(
+                id=row[0],
+                detalle=row[1],
+                cantidad=row[2],
+                expiracion=str(row[3]),
+                unidad_salud_id=row[4]
+            )
+        }
     except Exception as e:
         print(e)
-        return {"message": "Error updating inventory"}
+        return {
+            "updated": False,
+            "message": "Error updating inventory"
+        }
 
 
 #######################################################################################################################
