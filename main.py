@@ -392,7 +392,6 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
     cur.execute(user_auth)
     try:
         query = f"INSERT INTO requisito_minimo VALUES ('{product.detalle}', {product.cantidad_minima}, {product.unidad_salud_id})"
-        print(query)
         cur.execute(query)
         conn.commit()
     except Exception as e:
@@ -409,12 +408,9 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
             query = f"INSERT INTO bodega (detalle, cantidad, unidad_salud_id) VALUES ('{product.detalle}', {product.cantidad}, {product.unidad_salud_id})"
         else:
             query = f"INSERT INTO bodega (detalle, cantidad, expiracion, unidad_salud_id) VALUES ('{product.detalle}', {product.cantidad}, date '{product.expiracion}', {product.unidad_salud_id})"
-        print(query)
+
         cur.execute(query)
         conn.commit()
-
-        print(query)
-        cur.execute(query)
 
         cur.close()
         conn.close()
