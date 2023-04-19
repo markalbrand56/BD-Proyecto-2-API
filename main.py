@@ -245,6 +245,7 @@ async def get_healthcenter_by_id(id: str) -> models.HealthCenter | dict:
         "healthcenter": result
     }
 
+
 @app.post("/healthcenter/getByName/")
 async def get_healthcenter_by_name(healthcenter: models.HealthCenterName) -> models.HealthCenter | dict:
     conn = connect_db()
@@ -328,7 +329,7 @@ async def create_record(record: models.NewRecord) -> dict:
     # paciente_dpi: STRING
     # medico_encargado: STRING
     # enfermedad: STRING | Null
-    # evolución: STRING | Nill
+    # evolución: STRING | Null
     # examenes: STRING | Null
     # diagnosticos: STRING | Null
     # fecha_inicio: STRING
@@ -339,7 +340,7 @@ async def create_record(record: models.NewRecord) -> dict:
     # dpi_auth: STRING
     # medicamentos_id: [INTs]
 
-    return{
+    return {
         "LEANME": "NO ESTA IMPLEMENTADO AÚN"
     }
 
@@ -430,7 +431,7 @@ async def update_product_from_inventory(inventory: models.InventoryUpdate) -> mo
 #######################################################################################################################
 
 @app.post("/inventory/add/")
-async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
+async def add_new_product(product: models.ProductAdd) -> models.Bodega | dict:
     conn = connect_db()
     cur = conn.cursor()
     user_auth = f"set my.app_user = '{product.id_user_auth}'"
@@ -478,7 +479,7 @@ async def add_product(product: models.ProductAdd) -> models.Bodega | dict:
 #######################################################################################################################
 
 @app.post("/account/")
-async def get_account(id: models.AccountRequest) -> models.AccountDetails | dict:
+async def get_account_by_dpi(id: models.AccountRequest) -> models.AccountDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
 
@@ -560,7 +561,8 @@ async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.
         cur.execute(query)
         conn.commit()
 
-        cur.execute(f"SELECT * FROM trabaja WHERE medico_dpi = '{work_history.medico_dpi}' and unidad_salud_id = {work_history.unidad_salud_id} and fecha_entrada = date '{datetime.date.today()}'")
+        cur.execute(
+            f"SELECT * FROM trabaja WHERE medico_dpi = '{work_history.medico_dpi}' and unidad_salud_id = {work_history.unidad_salud_id} and fecha_entrada = date '{datetime.date.today()}'")
         row = cur.fetchone()
 
         cur.close()
@@ -624,7 +626,7 @@ async def update_account(account: models.AccountUpdate) -> models.UserDetailsUpd
 # ---------------------------------------------- AddRecord.jsx ------------------------------------------------------ #
 #######################################################################################################################
 @app.post("/inventory/medicines")
-async def get_medicines(id: models.MedicineSearch) -> list[models.MedicineResponse] | dict:
+async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[models.MedicineResponse] | dict:
     conn = connect_db()
     cur = conn.cursor()
 
@@ -660,6 +662,7 @@ async def get_medicines(id: models.MedicineSearch) -> list[models.MedicineRespon
     cur.close()
     conn.close()
     return result
+
 
 #######################################################################################################################
 # ---------------------------------------------- Binnacle.jsx ------------------------------------------------------- #
