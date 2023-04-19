@@ -360,7 +360,7 @@ async def create_record(record: models.NewRecord) -> dict:
         }
 
     if record.enfermedad is not None:
-        query = f"UPDATE expediente SET enfermedad_id = '{record.enfermedad}' WHERE no_expediente = {id_expediente}"
+        query = f"UPDATE expediente SET nombre_enfermedad = '{record.enfermedad}' WHERE no_expediente = {id_expediente}"
         try:
             cur.execute(query)
             conn.commit()
@@ -447,7 +447,20 @@ async def create_record(record: models.NewRecord) -> dict:
             }
 
     if record.medicamentos is not None:
-        pass
+        for medicamento in record.medicamentos:
+            query = f"INSERT INTO medicamentos VALUES ({id_expediente}, {medicamento}, 1)"
+            try:
+                cur.execute(query)
+                conn.commit()
+            except Exception as e:
+                print(e)
+                cur.close()
+                conn.close()
+                return {
+                    "added": False,
+                    "message": "Error al añadir el medicamento al expediente",
+                    "query": query
+                }
 
     return {
         "added": True,
@@ -807,3 +820,8 @@ async def get_binnacle() -> list[models.BinnacleResponse] | dict:
     cur.close()
     conn.close()
     return result
+
+
+# TODO LISTA DE MEDICINAS YA VENCIDAS
+# TODO LISTA DE MEDICINAS POR VENCERSE EN EL PROXIMO MES
+# TODO QUERY QUE REGRESE TODOS LOS MEDICAMENTOS DEBAJO DEL MÍNIMO
