@@ -464,9 +464,12 @@ async def get_work_history(id: models.AccountRequest) -> list[models.WorkHistory
 
 @app.put("/account/workHistory/")
 async def update_work_history(work_history: models.WorkHistoryUpdate) -> models.WorkHistory | dict:
-    # TODO Auth my.app_user al modificar el work hisotry. Necesitaria modificar los parámetros
     conn = connect_db()
     cur = conn.cursor()
+
+    query_auth = f"set my.app_user = '{work_history.dpi_auth}'"
+    cur.execute(query_auth)
+
     # ASUMIENDO QUE SOLO PUEDE HABER UN REGISTRO CON NULL EN FECHA_SALIDA A LA VEZ
     query = f"UPDATE trabaja SET fecha_salida = date '{datetime.date.today()}' where fecha_salida is null and medico_dpi = '{work_history.medico_dpi}'"
     try:

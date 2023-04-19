@@ -95,6 +95,7 @@ class AccountRequest(BaseModel):
     dpi: str
 
 
+
 class AccountDetails(BaseModel):
     dpi: str
     nombre: str
@@ -115,6 +116,7 @@ class WorkHistory(BaseModel):
 class WorkHistoryUpdate(BaseModel):
     medico_dpi: str
     unidad_salud_id: int
+    dpi_auth: str
 
 
 class AccountUpdate(BaseModel):
