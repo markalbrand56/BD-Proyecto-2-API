@@ -602,6 +602,41 @@ async def get_products_to_expire(id_unidad_salud: int) -> list[models.BodegaMedi
         }
 
 
+@app.get("/inventory/lowStock/{id_unidad_salud}")
+async def get_products_low_stock(id_unidad_salud: int) -> list[models.MedicinasBajoStock] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"SELECT b.unidad_salud_id, b.detalle, rm.cantidad_minima, sum(b.cantidad) as cantidad_en_bodega FROM bodega b INNER JOIN requisito_minimo rm ON rm.detalle = b.detalle AND rm.unidad_salud_id = b.unidad_salud_id WHERE (b.expiracion - current_date > 30 OR b.expiracion is null) AND b.unidad_salud_id = {id_unidad_salud} GROUP BY b.unidad_salud_id, b.detalle, rm.cantidad_minima HAVING sum(b.cantidad) < rm.cantidad_minima"
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+        result = []
+        for row in rows:
+            result.append(
+                models.MedicinasBajoStock(
+                    unidad_salud_id=row[0],
+                    detalle=row[1],
+                    cantidad_minima=row[2],
+                    cantidad_en_bodega=row[3]
+                )
+            )
+        cur.close()
+        conn.close()
+        return {
+            "executed": True,
+            "products_low_stock": result
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "executed": False,
+            "products_low_stock": None,
+            "message": "Error fetching inventory",
+            "query": query
+        }
+
+
 #######################################################################################################################
 # ---------------------------------------------- Add Product.jsx ---------------------------------------------------- #
 #######################################################################################################################

@@ -104,6 +104,13 @@ class BodegaMedicinasPorVencer(BaseModel):
     cantidad: int
 
 
+class MedicinasBajoStock(BaseModel):
+    unidad_salud_id: int
+    detalle: str
+    cantidad_minima: int
+    cantidad_en_bodega: int
+
+
 class InventoryUpdate(BaseModel):
     id: int
     existencia: int
