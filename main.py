@@ -1362,7 +1362,56 @@ async def get_most_patients_by_doctor() -> list[models.MostPatients] | dict:
 @app.get("/results/most_records")
 async def get_most_records_by_pacient() -> list[models.MostRecords] | dict:
     # TODO: Pacientes con mas asistencias a alguna unidad de salud
-    pass
+    # select
+    #     p.nombre,
+    #     count(*) as asistencias,
+    #     p.estatura,
+    #     p.peso,
+    #     p.adicciones,
+    #     p.enfermedades_hereditarias,
+    #     (p.peso / (p.estatura * p.estatura)) as imc
+    # from paciente p
+    # inner join expediente e on p.dpi = e.paciente_dpi
+    # group by p.nombre, p.estatura, p.adicciones, p.peso, p.enfermedades_hereditarias
+    # order by asistencias desc limit 5;
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"select p.nombre, count(*) as asistencias, p.estatura, p.peso, p.adicciones, p.enfermedades_hereditarias, (p.peso / (p.estatura * p.estatura)) as imc from paciente p inner join expediente e on p.dpi = e.paciente_dpi group by p.nombre, p.estatura, p.adicciones, p.peso, p.enfermedades_hereditarias order by asistencias desc limit 5"
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        result = []
+        for row in rows:
+            result.append(
+                models.MostRecords(
+                    nombre=row[0],
+                    cantidad_de_expedientes=row[1],
+                    estatura=row[2],
+                    peso=row[3],
+                    adicciones=row[4],
+                    enfermedades_hereditarias=row[5],
+                    imc=row[6]
+                )
+            )
+
+        cur.close()
+        conn.close()
+
+        return {
+            "executed": True,
+            "result": result
+        }
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "executed": False,
+            "message": "Error getting patients with most records"
+        }
 
 
 @app.get("/results/most_patients/{id_unidad_salud}")
