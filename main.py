@@ -497,6 +497,199 @@ async def create_record(record: models.NewRecord) -> dict:
     }
 
 
+# TODO Actualizar record: TODOS LOS CAMPOS
+@app.put("/record/")
+async def update_record(record: models.UpdateRecord) -> dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query_auth = f"set my.app_user = '{record.dpi_auth}'"
+    cur.execute(query_auth)
+
+    query_ver = f"SELECT * FROM expediente WHERE no_expediente = {record.no_expediente}"
+    cur.execute(query_ver)
+    row = cur.fetchone()
+
+    if row is None:
+        cur.close()
+        conn.close()
+        return {
+            "updated": False,
+            "message": "El expediente no existe"
+        }
+
+    if record.examenes is not None:
+        query = f"UPDATE expediente SET examenes = '{record.examenes}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar los exámenes del expediente",
+                "query": query
+            }
+
+    if record.diagnosticos is not None:
+        query = f"UPDATE expediente SET diagnosticos = '{record.diagnosticos}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar los diagnósticos del expediente",
+                "query": query
+            }
+
+    if record.fecha_salida is not None:
+        query = f"UPDATE expediente SET fecha_salida = date '{record.fecha_salida}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar la fecha de salida del expediente",
+                "query": query
+            }
+
+    if record.cirugias is not None:
+        query = f"UPDATE expediente SET cirugias = '{record.cirugias}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar las cirugías del expediente",
+                "query": query
+            }
+
+    if record.status is not None and row[8] != "Fallecido":  # Si está fallecido, no se puede revertir
+        query = f"UPDATE expediente SET status = '{record.status}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar el status del expediente",
+                "query": query
+            }
+
+    if record.enfermedad is not None:
+        query = f"UPDATE expediente SET nombre_enfermedad = '{record.enfermedad}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar la enfermedad del expediente",
+                "query": query
+            }
+
+    if record.evolucion is not None:
+        query = f"UPDATE expediente SET evolucion = '{record.evolucion}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar la evolución del expediente",
+                "query": query
+            }
+
+    try:
+        query = f"UPDATE expediente SET fecha_ingreso = date '{record.fecha_atencion}' WHERE no_expediente = {record.no_expediente}"
+        cur.execute(query)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "updated": False,
+            "message": "Error al actualizar la fecha de entrada del expediente",
+            "query": query
+        }
+
+    try:
+        query = f"UPDATE expediente SET medico_encargado = '{record.medico_encargado}' WHERE no_expediente = {record.no_expediente}"
+        cur.execute(query)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "updated": False,
+            "message": "Error al actualizar el médico encargado del expediente",
+            "query": query
+        }
+
+    try:
+        query = f"UPDATE expediente SET unidad_salud_id = '{record.unidad_salud_id}' WHERE no_expediente = {record.no_expediente}"
+        cur.execute(query)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "updated": False,
+            "message": "Error al actualizar la unidad de salud del expediente",
+            "query": query
+        }
+
+    if record.medicamentos is not None:
+        for medicamento in record.medicamentos:
+            query = f"INSERT INTO medicamentos VALUES ({record.no_expediente}, {medicamento}, 1)"
+            try:
+                cur.execute(query)
+                conn.commit()
+            except Exception as e:
+                print(e)
+                cur.close()
+                conn.close()
+                return {
+                    "updated": False,
+                    "message": "Error al actualizar los medicamentos del expediente",
+                    "query": query
+                }
+
+
+    cur.close()
+    conn.close()
+    return {
+        "updated": True,
+        "message": "Expediente actualizado correctamente",
+    }
+
+
 #######################################################################################################################
 # --------------------------------------------- Inventory.jsx ------------------------------------------------------- #
 #######################################################################################################################
@@ -693,6 +886,45 @@ async def get_products_low_stock(id_unidad_salud: int) -> list[models.MedicinasB
             "message": "Error fetching inventory",
             "query": query
         }
+
+
+@app.post("/inventory/medicines")
+async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[models.MedicineResponse] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    id_unidad_query = f"SELECT id FROM unidad_salud WHERE nombre = '{id.unidad_salud}'"
+    cur.execute(id_unidad_query)
+    row = cur.fetchone()
+    if row is None:
+        cur.close()
+        conn.close()
+        return {"message": "No unit found"}
+
+    id_unidad = row[0]
+    print(id_unidad)
+
+    query = f"SELECT b.id, b.detalle FROM bodega b WHERE b.unidad_salud_id = {id_unidad} and expiracion > current_date"
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    if rows is None or len(rows) == 0:
+        cur.close()
+        conn.close()
+        return {"message": "No records found"}
+
+    result = []
+    for row in rows:
+        result.append(
+            models.MedicineResponse(
+                id=row[0],
+                detalle=row[1]
+            )
+        )
+
+    cur.close()
+    conn.close()
+    return result
 
 
 #######################################################################################################################
@@ -898,48 +1130,6 @@ async def update_account(account: models.AccountUpdate) -> models.UserDetailsUpd
             "updated": False,
             "message": "Error updating account"
         }
-
-
-#######################################################################################################################
-# ---------------------------------------------- AddRecord.jsx ------------------------------------------------------ #
-#######################################################################################################################
-@app.post("/inventory/medicines")
-async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[models.MedicineResponse] | dict:
-    conn = connect_db()
-    cur = conn.cursor()
-
-    id_unidad_query = f"SELECT id FROM unidad_salud WHERE nombre = '{id.unidad_salud}'"
-    cur.execute(id_unidad_query)
-    row = cur.fetchone()
-    if row is None:
-        cur.close()
-        conn.close()
-        return {"message": "No unit found"}
-
-    id_unidad = row[0]
-    print(id_unidad)
-
-    query = f"SELECT b.id, b.detalle FROM bodega b WHERE b.unidad_salud_id = {id_unidad} and expiracion > current_date"
-    cur.execute(query)
-    rows = cur.fetchall()
-
-    if rows is None or len(rows) == 0:
-        cur.close()
-        conn.close()
-        return {"message": "No records found"}
-
-    result = []
-    for row in rows:
-        result.append(
-            models.MedicineResponse(
-                id=row[0],
-                detalle=row[1]
-            )
-        )
-
-    cur.close()
-    conn.close()
-    return result
 
 
 #######################################################################################################################
