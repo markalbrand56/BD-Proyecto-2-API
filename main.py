@@ -1325,8 +1325,38 @@ async def get_deadliest_diseases() -> list[models.DeadliestDiseases] | dict:
 
 @app.get("/results/most_patients")
 async def get_most_patients_by_doctor() -> list[models.MostPatients] | dict:
-    # TODO: Medicos con mas pacientes atendidos
-    pass
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"select m.nombre, count(*) as pacientes_atendidos from medico m inner join expediente e on m.dpi = e.medico_encargado group by m.nombre order by pacientes_atendidos desc limit 10"
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        result = []
+        for row in rows:
+            result.append(
+                models.MostPatients(
+                    nombre=row[0],
+                    cantidad_atendidos=row[1]
+                )
+            )
+
+        cur.close()
+        conn.close()
+
+        return {
+            "executed": True,
+            "result": result
+        }
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "executed": False,
+            "message": "Error getting deadliest diseases"
+        }
 
 
 @app.get("/results/most_records")
