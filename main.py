@@ -1293,19 +1293,23 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
 #######################################################################################################################
 @app.get("/results/deadliest")
 async def get_deadliest_diseases() -> list[models.DeadliestDiseases] | dict:
+    # TODO: Enfermedades mas mortales
     pass
 
 
 @app.get("/results/most_patients")
 async def get_most_patients_by_doctor() -> list[models.MostPatients] | dict:
+    # TODO: Medicos con mas pacientes atendidos
     pass
 
 
 @app.get("/results/most_records")
 async def get_most_records_by_pacient() -> list[models.MostRecords] | dict:
+    # TODO: Pacientes con mas asistencias a alguna unidad de salud
     pass
 
 
 @app.get("/results/most_patients/{id_unidad_salud}")
 async def get_most_patients_by_unidad_salud(id_unidad_salud: int) -> list[models.MostPatientsHC] | dict:
+    # TODO: Unidades de salud con mas pacientes atendidos
     pass
