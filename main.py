@@ -349,6 +349,30 @@ async def create_record(record: models.NewRecord) -> dict:
     query_auth = f"set my.app_user = '{record.dpi_auth}'"
     cur.execute(query_auth)
 
+    # Verificar si el paciente existe
+    query_ver = f"SELECT * FROM paciente WHERE dpi = '{record.paciente_dpi}'"
+    cur.execute(query_ver)
+    row = cur.fetchone()
+    if row is None:
+        cur.close()
+        conn.close()
+        return {
+            "added": False,
+            "message": "El paciente no existe"
+        }
+
+    # Verificar si el paciente ya falleció
+    query_ver = f"SELECT * FROM expediente WHERE paciente_dpi = '{record.paciente_dpi}' AND status = 'Fallecido'"
+    cur.execute(query_ver)
+    row = cur.fetchone()
+    if row is not None:
+        cur.close()
+        conn.close()
+        return {
+            "added": False,
+            "message": "El paciente ya falleció"
+        }
+
     id_expediente = None
     query = f"INSERT INTO expediente (paciente_dpi, medico_encargado, fecha_ingreso, status, unidad_salud_id) VALUES ('{record.paciente_dpi}', '{record.medico_encargado}', '{record.fecha_atencion}', '{record.status}', {record.unidad_salud_id}) RETURNING no_expediente"
     try:
