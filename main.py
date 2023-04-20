@@ -327,24 +327,6 @@ async def create_record(record: models.NewRecord) -> dict:
     query_auth = f"set my.app_user = '{record.dpi_auth}'"
     cur.execute(query_auth)
 
-    # TODO AÑADIR UN RECORD
-    # paciente_dpi: STRING
-    # medico_encargado: STRING
-    # enfermedad: STRING | Null
-    # evolución: STRING | Null
-    # examenes: STRING | Null
-    # diagnosticos: STRING | Null
-    # fecha_inicio: STRING
-    # fecha_salida: STRING | NULL // FECHA DE CIERRE DE EXPEDIENTE
-    # cirugias: STRING | Null
-    # status: STRING | NUll
-    # unidad_salud_id: INT
-    # dpi_auth: STRING
-    # medicamentos_id: [INTs]
-
-    # insert into expediente (paciente_dpi, medico_encargado, fecha_ingreso, status)
-
-    # Primero, se insertan todos los datos esenciales del expediente
     id_expediente = None
     query = f"INSERT INTO expediente (paciente_dpi, medico_encargado, fecha_ingreso, status) VALUES ('{record.paciente_dpi}', '{record.medico_encargado}', '{record.fecha_atencion}', '{record.status}') RETURNING no_expediente"
     try:
@@ -547,6 +529,40 @@ async def update_product_from_inventory(inventory: models.InventoryUpdate) -> mo
         return {
             "updated": False,
             "message": "Error updating inventory"
+        }
+
+
+@app.get("/inventory/expired/{id_unidad_salud}")
+async def get_expired_products(id_unidad_salud: int) -> list[models.BodegaMedicinasVencidas] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"SELECT b.id, b.unidad_salud_id, b.detalle, sum(b.cantidad) as cantidad_en_bodega FROM bodega b WHERE expiracion - current_date < 0 AND b.unidad_salud_id = {id_unidad_salud} GROUP BY b.detalle, b.unidad_salud_id, b.id"
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+        result = []
+        for row in rows:
+            result.append(
+                models.BodegaMedicinasVencidas(
+                    id_en_bodega=row[0],
+                    unidad_salud_id=row[1],
+                    detalle=row[2],
+                    cantidad=row[3]
+                )
+            )
+        cur.close()
+        conn.close()
+        return {
+            "executed": True,
+            "expired_products": result
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "executed": False,
+            "message": "Error updating inventory",
+            "query": query
         }
 
 

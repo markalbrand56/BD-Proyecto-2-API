@@ -89,6 +89,14 @@ class Bodega(BaseModel):
     unidad_salud_id: int
 
 
+class BodegaMedicinasVencidas(BaseModel):
+    id_en_bodega: int
+    unidad_salud_id: int
+    detalle: str
+    cantidad: int
+
+
+
 class InventoryUpdate(BaseModel):
     id: int
     existencia: int
