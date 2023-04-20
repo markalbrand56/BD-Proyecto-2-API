@@ -688,6 +688,30 @@ async def update_record(record: models.UpdateRecord) -> dict:
     }
 
 
+@app.get("/record/medicine/{no_expediente}")
+async def get_medicines_by_record(no_expediente: int) -> list[str] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"SELECT b.detalle FROM medicamentos m INNER JOIN bodega b on b.id = m.bodega_id WHERE expediente_numero = {no_expediente}"
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        return {
+            "found": True,
+            "medicines": [row[0] for row in rows]
+        }
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "found": False,
+            "message": "Error al obtener los medicamentos del expediente",
+            "query": query
+        }
+
 #######################################################################################################################
 # --------------------------------------------- Inventory.jsx ------------------------------------------------------- #
 #######################################################################################################################

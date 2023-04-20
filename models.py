@@ -188,6 +188,10 @@ class MedicineResponse(BaseModel):
     detalle: str
 
 
+class MedicineExpediente(BaseModel):
+    nombre_medicamento: str
+
+
 class BinnacleResponse(BaseModel):
     accion: str
     tabla: str
