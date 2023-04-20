@@ -689,18 +689,27 @@ async def update_record(record: models.UpdateRecord) -> dict:
 
 
 @app.get("/record/medicine/{no_expediente}")
-async def get_medicines_by_record(no_expediente: int) -> list[str] | dict:
+async def get_medicines_by_record(no_expediente: int) -> list[models.MedicinaExpediente] | dict:
     conn = connect_db()
     cur = conn.cursor()
 
-    query = f"SELECT b.detalle FROM medicamentos m INNER JOIN bodega b on b.id = m.bodega_id WHERE expediente_numero = {no_expediente}"
+    query = f"SELECT b.detalle, sum(m.cantidad_utilizada) as cantidad FROM medicamentos m INNER JOIN bodega b on b.id = m.bodega_id WHERE expediente_numero = {no_expediente} group by b.detalle"
     try:
         cur.execute(query)
         rows = cur.fetchall()
 
+        result = []
+        for row in rows:
+            result.append(
+                models.MedicinaExpediente(
+                    medicamento=row[0],
+                    cantidad=row[1]
+                )
+            )
+
         return {
             "found": True,
-            "medicines": [row[0] for row in rows]
+            "medicines": result,
         }
     except Exception as e:
         print(e)

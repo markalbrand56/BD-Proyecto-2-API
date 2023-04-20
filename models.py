@@ -188,8 +188,9 @@ class MedicineResponse(BaseModel):
     detalle: str
 
 
-class MedicineExpediente(BaseModel):
-    nombre_medicamento: str
+class MedicinaExpediente(BaseModel):
+    medicamento: str
+    cantidad: int
 
 
 class BinnacleResponse(BaseModel):
