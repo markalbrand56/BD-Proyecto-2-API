@@ -957,6 +957,30 @@ async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[mo
     return result
 
 
+@app.get("/inventory/medicines/{unidad_salud_id}")
+async def get_medicines_by_unidad_salud_id(unidad_salud_id: int) ->  dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"SELECT distinct b.detalle FROM bodega b WHERE b.unidad_salud_id = {unidad_salud_id} and (b.expiracion > current_date or b.expiracion is null)"
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    if rows is None or len(rows) == 0:
+        cur.close()
+        conn.close()
+        return {"message": "No records found"}
+
+
+    cur.close()
+    conn.close()
+
+    return {
+        "found": True,
+        "medicines": [row[0] for row in rows]
+    }
+
+
 #######################################################################################################################
 # ---------------------------------------------- Add Product.jsx ---------------------------------------------------- #
 #######################################################################################################################
