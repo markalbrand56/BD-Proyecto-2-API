@@ -221,7 +221,6 @@ async def get_healthcenter_by_id(id: str) -> models.HealthCenter | dict:
             "message": "Invalid id"
         }
     query = f'SELECT * FROM unidad_salud WHERE id = {id}'
-    print(query)
 
     cur.execute(query)
     row = cur.fetchone()
