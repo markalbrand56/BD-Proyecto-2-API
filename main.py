@@ -568,6 +568,7 @@ async def add_new_product(product: models.ProductAdd) -> models.Bodega | dict:
             cur.execute(query)
             conn.commit()
         except errors.lookup(UNIQUE_VIOLATION) as e:
+            conn.rollback()
             pass
         except Exception as e:
             print(e)
@@ -579,6 +580,8 @@ async def add_new_product(product: models.ProductAdd) -> models.Bodega | dict:
             }
 
     try:
+        user_auth = f"set my.app_user = '{product.id_user_auth}'"
+        cur.execute(user_auth)
         if product.expiracion is None:
             query = f"INSERT INTO bodega (detalle, cantidad, unidad_salud_id) VALUES ('{product.detalle}', {product.cantidad}, {product.unidad_salud_id})"
         else:
@@ -594,12 +597,13 @@ async def add_new_product(product: models.ProductAdd) -> models.Bodega | dict:
             "added": True,
         }
     except Exception as e:
-        print(e)
+        print("ERROR: " + str(e))
         cur.close()
         conn.close()
         return {
             "added": False,
-            "message": "Error adding product to bodega"
+            "message": "Error adding product to bodega",
+            "query": query
         }
 
 
