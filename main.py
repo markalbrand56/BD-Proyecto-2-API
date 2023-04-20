@@ -881,23 +881,15 @@ async def create_patient(patient: models.PatientCreate) -> models.PatientDetails
 
         return {
             "created": True,
-            "patient": models.PatientDetails(
-                dpi=patient.dpi,
-                nombre=patient.nombre,
-                estatura=patient.estatura,
-                peso=patient.peso,
-                telefono=patient.telefono,
-                adicciones=patient.adicciones,
-                direccion=patient.direccion,
-                enfermedades_hereditarias=patient.enfermedades_hereditarias
-            )
         }
     except Exception as e:
         print(e)
         return {
             "created": False,
-            "message": "Error creating patient"
+            "message": "Error creating patient",
+            "query": query
         }
+
 
 @app.put("/patients/")
 async def update_patient_profile(patient: models.PatientUpdate) -> models.PatientDetails | dict:
