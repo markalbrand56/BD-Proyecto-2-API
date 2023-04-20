@@ -240,3 +240,30 @@ class PatientUpdate(BaseModel):
     direccion: str | None
     enfermedades_hereditarias: str | None
     dpi_auth: str
+
+
+class DeadliestDiseases(BaseModel):
+    nombre_enfermedad: str
+    casos: int
+
+
+class MostPatients(BaseModel):
+    nombre: str
+    cantidad_atendidos: int
+
+
+class MostRecords(BaseModel):
+    nombre: str
+    cantidad_de_expedientes: int
+    estatura: float | None
+    peso: float | None
+    addicciones: str | None
+    enfermedades_hereditarias: str | None
+    imc: float | None
+
+
+class MostPatientsHC(BaseModel):
+    nombre_unidad_salud: str
+    tipo: str
+    direccion: str
+    cantidad_atendidos: int

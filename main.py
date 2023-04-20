@@ -680,7 +680,6 @@ async def update_record(record: models.UpdateRecord) -> dict:
                     "query": query
                 }
 
-
     cur.close()
     conn.close()
     return {
@@ -738,7 +737,6 @@ async def get_inventory_by_bodega_id(nombre_unidad: models.BodegaSearch) -> list
                     unidad_salud_id=row[4]
                 )
             )
-
 
     cur.close()
     conn.close()
@@ -1255,3 +1253,26 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
             "message": "Error updating patient profile",
             "query": query
         }
+
+
+#######################################################################################################################
+# ---------------------------------------------- Resultados --------------------------------------------------------- #
+#######################################################################################################################
+@app.get("/results/deadliest")
+async def get_deadliest_diseases() -> list[models.DeadliestDiseases] | dict:
+    pass
+
+
+@app.get("/results/most_patients")
+async def get_most_patients_by_doctor() -> list[models.MostPatients] | dict:
+    pass
+
+
+@app.get("/results/most_records")
+async def get_most_records_by_pacient() -> list[models.MostRecords] | dict:
+    pass
+
+
+@app.get("/results/most_patients/{id_unidad_salud}")
+async def get_most_patients_by_unidad_salud(id_unidad_salud: int) -> list[models.MostPatientsHC] | dict:
+    pass
