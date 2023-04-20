@@ -1399,12 +1399,12 @@ async def get_most_patients_by_doctor() -> list[models.MostPatients] | dict:
         }
 
 
-@app.get("/results/most_records")
-async def get_most_records_by_pacient() -> list[models.MostRecords] | dict:
+@app.get("/results/most_records/{id_unidad_salud}")
+async def get_most_records_by_pacient(id_unidad_salud: int) -> list[models.MostRecords] | dict:
     conn = connect_db()
     cur = conn.cursor()
 
-    query = f"select p.nombre, count(*) as asistencias, p.estatura, p.peso, p.adicciones, p.enfermedades_hereditarias, (p.peso / (p.estatura * p.estatura)) as imc from paciente p inner join expediente e on p.dpi = e.paciente_dpi group by p.nombre, p.estatura, p.adicciones, p.peso, p.enfermedades_hereditarias order by asistencias desc limit 5"
+    query = f"select p.nombre, count(*) as asistencias, p.estatura, p.peso, p.adicciones, p.enfermedades_hereditarias, (p.peso / (p.estatura * p.estatura)) as imc from paciente p inner join expediente e on p.dpi = e.paciente_dpi where e.unidad_salud_id = {id_unidad_salud} group by p.nombre, p.estatura, p.adicciones, p.peso, p.enfermedades_hereditarias order by asistencias desc limit 5"
     try:
         cur.execute(query)
         rows = cur.fetchall()
