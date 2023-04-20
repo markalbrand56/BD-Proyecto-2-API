@@ -328,7 +328,7 @@ async def create_record(record: models.NewRecord) -> dict:
     cur.execute(query_auth)
 
     id_expediente = None
-    query = f"INSERT INTO expediente (paciente_dpi, medico_encargado, fecha_ingreso, status) VALUES ('{record.paciente_dpi}', '{record.medico_encargado}', '{record.fecha_atencion}', '{record.status}') RETURNING no_expediente"
+    query = f"INSERT INTO expediente (paciente_dpi, medico_encargado, fecha_ingreso, status, unidad_salud_id) VALUES ('{record.paciente_dpi}', '{record.medico_encargado}', '{record.fecha_atencion}', '{record.status}', {record.unidad_salud_id}) RETURNING no_expediente"
     try:
         cur.execute(query)
         id_expediente = cur.fetchone()[0]
@@ -561,6 +561,42 @@ async def get_expired_products(id_unidad_salud: int) -> list[models.BodegaMedici
         print(e)
         return {
             "executed": False,
+            "message": "Error updating inventory",
+            "query": query
+        }
+
+
+@app.get("/inventory/toExpire/{id_unidad_salud}")
+async def get_products_to_expire(id_unidad_salud: int) -> list[models.BodegaMedicinasPorVencer] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"SELECT b.id, b.unidad_salud_id, b.detalle, b.expiracion, sum(b.cantidad) as cantidad_en_bodega FROM bodega b WHERE expiracion - current_date < 30 and expiracion - current_date > 0 and b.unidad_salud_id = {id_unidad_salud} GROUP BY b.id"
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+        result = []
+        for row in rows:
+            result.append(
+                models.BodegaMedicinasVencidas(
+                    id_en_bodega=row[0],
+                    unidad_salud_id=row[1],
+                    detalle=row[2],
+                    expiracion=str(row[3]),
+                    cantidad=row[4]
+                )
+            )
+        cur.close()
+        conn.close()
+        return {
+            "executed": True,
+            "products_to_expire": result
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "executed": False,
+            "products_to_expire": None,
             "message": "Error updating inventory",
             "query": query
         }
@@ -938,5 +974,4 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
             "query": query
         }
 
-# TODO LISTA DE MEDICINAS POR VENCERSE EN EL PROXIMO MES
 # TODO QUERY QUE REGRESE TODOS LOS MEDICAMENTOS DEBAJO DEL MÍNIMO
