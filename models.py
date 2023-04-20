@@ -71,7 +71,7 @@ class NewRecord(BaseModel):
     fecha_atencion: str
     fecha_salida: str | None  # Cierre de expediente
     cirugias: str | None
-    status: str
+    status: str | None
     unidad_salud_id: int
     dpi_auth: str
     medicamentos: list[int] | None

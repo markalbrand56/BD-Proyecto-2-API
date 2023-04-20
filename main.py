@@ -938,6 +938,5 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
             "query": query
         }
 
-# TODO LISTA DE MEDICINAS YA VENCIDAS
 # TODO LISTA DE MEDICINAS POR VENCERSE EN EL PROXIMO MES
 # TODO QUERY QUE REGRESE TODOS LOS MEDICAMENTOS DEBAJO DEL MÍNIMO
