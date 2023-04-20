@@ -826,11 +826,11 @@ async def get_products_to_expire(id_unidad_salud: int) -> list[models.BodegaMedi
         result = []
         for row in rows:
             result.append(
-                models.BodegaMedicinasVencidas(
+                models.BodegaMedicinasPorVencer(
                     id_en_bodega=row[0],
                     unidad_salud_id=row[1],
                     detalle=row[2],
-                    expiracion=str(row[3]),
+                    fecha_expiracion=str(row[3]),
                     cantidad=row[4]
                 )
             )
