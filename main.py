@@ -1454,7 +1454,42 @@ async def get_most_records_by_pacient() -> list[models.MostRecords] | dict:
         }
 
 
-@app.get("/results/most_patients/{id_unidad_salud}")
-async def get_most_patients_by_unidad_salud(id_unidad_salud: int) -> list[models.MostPatientsHC] | dict:
-    # TODO: Unidades de salud con mas pacientes atendidos
-    pass
+@app.get("/results/most_patients/healthcenters")
+async def get_most_patients_by_unidad_salud() -> list[models.MostPatientsHC] | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"select u.nombre, u.tipo, u.direccion, count(*) as pacientes_atendidos from unidad_salud u inner join expediente e on u.id = e.unidad_salud_id group by u.nombre, u.tipo, u.direccion order by pacientes_atendidos desc limit 3"
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        result = []
+        for row in rows:
+            result.append(
+                models.MostPatientsHC(
+                    nombre_unidad_salud=row[0],
+                    tipo=row[1],
+                    direccion=row[2],
+                    cantidad_atendidos=row[3]
+                )
+            )
+
+        cur.close()
+        conn.close()
+        return {
+            "executed": True,
+            "result": result
+        }
+
+    except Exception as e:
+        print(e)
+        cur.close()
+        conn.close()
+        return {
+            "executed": False,
+            "message": "Error getting health centers with most patients"
+        }
+
+
+
