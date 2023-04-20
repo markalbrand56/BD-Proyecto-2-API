@@ -1293,8 +1293,34 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
 #######################################################################################################################
 @app.get("/results/deadliest")
 async def get_deadliest_diseases() -> list[models.DeadliestDiseases] | dict:
-    # TODO: Enfermedades mas mortales
-    pass
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = f"select e.nombre_enfermedad, count(*) as casos from expediente e where e.status = 'Fallecido' group by e.nombre_enfermedad order by casos desc limit 10"
+
+    try:
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        result = []
+        for row in rows:
+            result.append(
+                models.DeadliestDiseases(
+                    nombre_enfermedad=row[0],
+                    casos=row[1]
+                )
+            )
+
+        return {
+            "executed": True,
+            "result": result
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "executed": False,
+            "message": "Error getting deadliest diseases"
+        }
 
 
 @app.get("/results/most_patients")
