@@ -294,28 +294,51 @@ async def get_records_by_dpi(dpi: str) -> list[models.Record] | dict:
     if rows is None or len(rows) == 0:
         cur.close()
         conn.close()
-        return {"message": "No records found"}
+        return {
+            "found": False,
+            "message": "No records found"
+        }
 
     result = []
     for row in rows:
-        result.append(
-            models.Record(
-                no_expediente=row[0],
-                paciente_dpi=row[1],
-                medico_encargado=row[2],
-                enfermedad_id=row[3],
-                examenes=row[4],
-                diagnosticos=row[5],
-                fecha_atencion=str(row[6]),
-                cirugias=row[7],
-                status=row[8],
-                unidad_salud_id=row[9]
-            )
+        new_record = models.Record(
+            no_expediente=row[0],
+            paciente_dpi=row[1],
+            medico_encargado=row[2],
+            fecha_atencion=str(row[5]),
+            status=row[8],
+            unidad_salud_id=row[9],
         )
+
+        if row[3] is not None:
+            new_record.examenes = row[3]
+
+        if row[4] is not None:
+            new_record.diagnosticos = row[4]
+
+        if row[5] is not None:
+            new_record.fecha_atencion = str(row[5])
+
+        if row[6] is not None:
+            new_record.fecha_salida = str(row[6])
+
+        if row[7] is not None:
+            new_record.cirugias = row[7]
+
+        if row[10] is not None:
+            new_record.enfermedad = row[10]
+
+        if row[11] is not None:
+            new_record.evolucion = row[11]
+
+        result.append(new_record)
 
     cur.close()
     conn.close()
-    return result
+    return {
+        "found": True,
+        "records": result
+    }
 
 
 @app.post("/record/")

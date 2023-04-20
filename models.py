@@ -52,13 +52,15 @@ class Record(BaseModel):
     no_expediente: int
     paciente_dpi: str
     medico_encargado: str
-    enfermedad_id: int | None
     examenes: str | None
     diagnosticos: str | None
     fecha_atencion: str
+    fecha_salida: str | None  # Cierre de expediente
     cirugias: str | None
     status: str
     unidad_salud_id: int
+    enfermedad: int | None
+    evolucion: str | None
 
 
 class NewRecord(BaseModel):
