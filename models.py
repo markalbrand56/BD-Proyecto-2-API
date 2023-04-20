@@ -120,7 +120,7 @@ class BodegaMedicinasPorVencer(BaseModel):
     unidad_salud_id: int
     detalle: str
     fecha_expiracion: str
-    cantidad: int
+    cantidad_en_bodega: int
 
 
 class MedicinasBajoStock(BaseModel):

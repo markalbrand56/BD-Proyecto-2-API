@@ -864,7 +864,7 @@ async def get_products_to_expire(id_unidad_salud: int) -> list[models.BodegaMedi
                     unidad_salud_id=row[1],
                     detalle=row[2],
                     fecha_expiracion=str(row[3]),
-                    cantidad=row[4]
+                    cantidad_en_bodega=row[4]
                 )
             )
         cur.close()
