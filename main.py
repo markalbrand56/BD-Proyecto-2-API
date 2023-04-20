@@ -497,7 +497,6 @@ async def create_record(record: models.NewRecord) -> dict:
     }
 
 
-# TODO Actualizar record: TODOS LOS CAMPOS
 @app.put("/record/")
 async def update_record(record: models.UpdateRecord) -> dict:
     conn = connect_db()
