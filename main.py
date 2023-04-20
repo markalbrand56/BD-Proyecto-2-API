@@ -1240,10 +1240,41 @@ async def create_patient(patient: models.PatientCreate) -> models.PatientDetails
     query_auth = f"set my.app_user = '{patient.dpi_auth}'"
     cur.execute(query_auth)
 
-    query = f"INSERT INTO paciente (dpi, nombre, estatura, peso, telefono, adicciones, direccion, enfermedades_hereditarias) VALUES ('{patient.dpi}', '{patient.nombre}', {patient.estatura}, {patient.peso}, '{patient.telefono}', '{patient.adicciones}', '{patient.direccion}', '{patient.enfermedades_hereditarias}')"
+    query = f"INSERT INTO paciente (dpi, nombre) VALUES ('{patient.dpi}', '{patient.nombre}')"
     try:
         cur.execute(query)
         conn.commit()
+
+        if patient.estatura is not None:
+            query = f"UPDATE paciente SET estatura = {patient.estatura} WHERE dpi = '{patient.dpi}'"
+            cur.execute(query)
+            conn.commit()
+
+        if patient.peso is not None:
+            query = f"UPDATE paciente SET peso = {patient.peso} WHERE dpi = '{patient.dpi}'"
+            cur.execute(query)
+            conn.commit()
+
+        if patient.telefono is not None:
+            query = f"UPDATE paciente SET telefono = '{patient.telefono}' WHERE dpi = '{patient.dpi}'"
+            cur.execute(query)
+            conn.commit()
+
+        if patient.adicciones is not None:
+            query = f"UPDATE paciente SET adicciones = '{patient.adicciones}' WHERE dpi = '{patient.dpi}'"
+            cur.execute(query)
+            conn.commit()
+
+        if patient.direccion is not None:
+            query = f"UPDATE paciente SET direccion = '{patient.direccion}' WHERE dpi = '{patient.dpi}'"
+            cur.execute(query)
+            conn.commit()
+
+        if patient.enfermedades_hereditarias is not None:
+            query = f"UPDATE paciente SET enfermedades_hereditarias = '{patient.enfermedades_hereditarias}' WHERE dpi = '{patient.dpi}'"
+            cur.execute(query)
+            conn.commit()
+
 
         cur.close()
         conn.close()
@@ -1251,6 +1282,15 @@ async def create_patient(patient: models.PatientCreate) -> models.PatientDetails
         return {
             "created": True,
         }
+
+    except errors.lookup(UNIQUE_VIOLATION) as e:
+        print(e)
+        return {
+            "created": False,
+            "message": "Patient already exists",
+            "query": query
+        }
+
     except Exception as e:
         print(e)
         return {
