@@ -210,6 +210,7 @@ class PatientCreate(BaseModel):
     enfermedades_hereditarias: str | None
     dpi_auth: str
 
+
 class PatientUpdate(BaseModel):
     dpi: str
     nombre: str
