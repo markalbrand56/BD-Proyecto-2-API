@@ -860,7 +860,7 @@ async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[mo
     id_unidad = row[0]
     print(id_unidad)
 
-    query = f"SELECT b.id, b.detalle FROM bodega b WHERE b.unidad_salud_id = {id_unidad}"
+    query = f"SELECT b.id, b.detalle FROM bodega b WHERE b.unidad_salud_id = {id_unidad} and expiracion > current_date"
     cur.execute(query)
     rows = cur.fetchall()
 
