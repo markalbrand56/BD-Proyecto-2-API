@@ -479,15 +479,27 @@ async def get_inventory_by_bodega_id(nombre_unidad: models.BodegaSearch) -> list
 
     result = []
     for row in rows:
-        result.append(
-            models.Bodega(
-                id=row[0],
-                detalle=row[1],
-                cantidad=row[2],
-                expiracion=str(row[3]),
-                unidad_salud_id=row[4]
+        if row[3] is None:
+            result.append(
+                models.Bodega(
+                    id=row[0],
+                    detalle=row[1],
+                    cantidad=row[2],
+                    expiracion=None,
+                    unidad_salud_id=row[4]
+                )
             )
-        )
+        else:
+            result.append(
+                models.Bodega(
+                    id=row[0],
+                    detalle=row[1],
+                    cantidad=row[2],
+                    expiracion=str(row[3]),
+                    unidad_salud_id=row[4]
+                )
+            )
+
 
     cur.close()
     conn.close()
