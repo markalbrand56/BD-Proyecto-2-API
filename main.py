@@ -1008,5 +1008,3 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
             "message": "Error updating patient profile",
             "query": query
         }
-
-# TODO QUERY QUE REGRESE TODOS LOS MEDICAMENTOS DEBAJO DEL MÍNIMO
