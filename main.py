@@ -3,6 +3,8 @@ import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from psycopg2.errorcodes import UNIQUE_VIOLATION
+from psycopg2 import errors
 import os
 import psycopg2
 import models
@@ -565,6 +567,8 @@ async def add_new_product(product: models.ProductAdd) -> models.Bodega | dict:
             query = f"INSERT INTO requisito_minimo VALUES ('{product.detalle}', {product.cantidad_minima}, {product.unidad_salud_id})"
             cur.execute(query)
             conn.commit()
+        except errors.lookup(UNIQUE_VIOLATION) as e:
+            pass
         except Exception as e:
             print(e)
             cur.close()
@@ -821,6 +825,7 @@ async def get_binnacle() -> list[models.BinnacleResponse] | dict:
     conn.close()
     return result
 
+
 #######################################################################################################################
 # ---------------------------------------------- Pacientes ---------------------------------------------------------- #
 #######################################################################################################################
@@ -857,6 +862,69 @@ async def get_patient_by_dpi(dpi: str) -> models.PatientDetails | dict:
         )
     }
 
+
+@app.post("/patients/")
+async def create_patient(patient: models.PatientCreate) -> models.PatientDetails | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query_auth = f"set my.app_user = '{patient.dpi_auth}'"
+    cur.execute(query_auth)
+
+    query = f"INSERT INTO paciente (dpi, nombre, estatura, peso, telefono, adicciones, direccion, enfermedades_hereditarias) VALUES ('{patient.dpi}', '{patient.nombre}', {patient.estatura}, {patient.peso}, '{patient.telefono}', '{patient.adicciones}', '{patient.direccion}', '{patient.enfermedades_hereditarias}')"
+    try:
+        cur.execute(query)
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        return {
+            "created": True,
+            "patient": models.PatientDetails(
+                dpi=patient.dpi,
+                nombre=patient.nombre,
+                estatura=patient.estatura,
+                peso=patient.peso,
+                telefono=patient.telefono,
+                adicciones=patient.adicciones,
+                direccion=patient.direccion,
+                enfermedades_hereditarias=patient.enfermedades_hereditarias
+            )
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "created": False,
+            "message": "Error creating patient"
+        }
+
+@app.put("/patients/")
+async def update_patient_profile(patient: models.PatientUpdate) -> models.PatientDetails | dict:
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query_auth = f"set my.app_user = '{patient.dpi_auth}'"
+    cur.execute(query_auth)
+
+    query = f"UPDATE paciente SET estatura = {patient.estatura}, peso = {patient.peso}, telefono = '{patient.telefono}', adicciones = '{patient.adicciones}', direccion = '{patient.direccion}', enfermedades_hereditarias = '{patient.enfermedades_hereditarias}' WHERE dpi = '{patient.dpi}'"
+    try:
+        cur.execute(query)
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        return {
+            "updated": True,
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "updated": False,
+            "message": "Error updating patient profile",
+            "query": query
+        }
 
 # TODO LISTA DE MEDICINAS YA VENCIDAS
 # TODO LISTA DE MEDICINAS POR VENCERSE EN EL PROXIMO MES
