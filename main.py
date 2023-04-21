@@ -126,10 +126,6 @@ async def sign_up_user_medico(user: models.UserSignIn) -> models.UserDetails | d
     query_medico = f"INSERT INTO medico VALUES ('{user.dpi}', '{user.nombre}', '{user.direccion}', '{user.telefono}', '{user.num_colegiado}', '{user.especialidad}')"
     query_trabaja = f"INSERT INTO trabaja VALUES ('{datetime.date.today()}', null, '{user.dpi}', '{unidad_salud_id}')"
 
-    # print(query_usuario)
-    # print(query_medico)
-    # print(query_trabaja)
-
     try:
         cur.execute(query_usuario)
         conn.commit()
@@ -1265,6 +1261,8 @@ async def get_patient_by_dpi(dpi: str) -> models.PatientDetails | dict:
 async def create_patient(patient: models.PatientCreate) -> models.PatientDetails | dict:
     conn = connect_db()
     cur = conn.cursor()
+
+    print(patient)
 
     query_auth = f"set my.app_user = '{patient.dpi_auth}'"
     cur.execute(query_auth)
