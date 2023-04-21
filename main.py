@@ -665,6 +665,37 @@ async def update_record(record: models.UpdateRecord) -> dict:
 
     if record.medicamentos is not None:
         for medicamento in record.medicamentos:
+
+            query_ver = f"SELECT cantidad_utilizada FROM medicamentos WHERE expediente_numero = {record.no_expediente} AND bodega_id = {medicamento}"
+
+            try:
+                cur.execute(query_ver)
+                row = cur.fetchone()
+                if row is not None:
+                    query = f"UPDATE medicamentos SET cantidad_utilizada = {row[0] + 1} WHERE expediente_numero = {record.no_expediente} AND bodega_id = {medicamento}"
+                    try:
+                        cur.execute(query)
+                        conn.commit()
+                    except Exception as e:
+                        print(e)
+                        cur.close()
+                        conn.close()
+                        return {
+                            "updated": False,
+                            "message": "Error al actualizar los medicamentos del expediente",
+                            "query": query
+                        }
+                    continue
+            except Exception as e:
+                print(e)
+                cur.close()
+                conn.close()
+                return {
+                    "updated": False,
+                    "message": "Error al actualizar los medicamentos del expediente",
+                    "query": query_ver
+                }
+
             query = f"INSERT INTO medicamentos VALUES ({record.no_expediente}, {medicamento}, 1)"
             try:
                 cur.execute(query)
