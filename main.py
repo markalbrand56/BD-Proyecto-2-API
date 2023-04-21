@@ -1198,7 +1198,7 @@ async def update_account(account: models.AccountUpdate) -> models.UserDetailsUpd
 async def get_binnacle() -> list[models.BinnacleResponse] | dict:
     conn = connect_db()
     cur = conn.cursor()
-    query = f"SELECT * FROM bitacora"
+    query = f"SELECT * FROM bitacora order by fecha desc"
     cur.execute(query)
     rows = cur.fetchall()
 
