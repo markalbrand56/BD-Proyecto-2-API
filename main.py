@@ -724,6 +724,7 @@ async def get_medicines_by_record(no_expediente: int) -> list[models.MedicinaExp
             "query": query
         }
 
+
 #######################################################################################################################
 # --------------------------------------------- Inventory.jsx ------------------------------------------------------- #
 #######################################################################################################################
@@ -963,7 +964,7 @@ async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[mo
 
 
 @app.get("/inventory/medicines/{unidad_salud_id}")
-async def get_medicines_by_unidad_salud_id(unidad_salud_id: int) ->  dict:
+async def get_medicines_by_unidad_salud_id(unidad_salud_id: int) -> dict:
     conn = connect_db()
     cur = conn.cursor()
 
@@ -975,7 +976,6 @@ async def get_medicines_by_unidad_salud_id(unidad_salud_id: int) ->  dict:
         cur.close()
         conn.close()
         return {"message": "No records found"}
-
 
     cur.close()
     conn.close()
@@ -1304,7 +1304,6 @@ async def create_patient(patient: models.PatientCreate) -> models.PatientDetails
             cur.execute(query)
             conn.commit()
 
-
         cur.close()
         conn.close()
 
@@ -1424,7 +1423,6 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
     return {
         "updated": True
     }
-
 
 
 #######################################################################################################################
@@ -1575,6 +1573,3 @@ async def get_most_patients_by_unidad_salud() -> list[models.MostPatientsHC] | d
             "executed": False,
             "message": "Error getting health centers with most patients"
         }
-
-
-
