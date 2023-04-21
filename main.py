@@ -505,7 +505,7 @@ async def update_record(record: models.UpdateRecord) -> dict:
     query_auth = f"set my.app_user = '{record.dpi_auth}'"
     cur.execute(query_auth)
 
-    query_ver = f"SELECT * FROM expediente WHERE no_expediente = {record.no_expediente}"
+    query_ver = f"SELECT * FROM expediente WHERE no_expediente = {record.no_expediente} and paciente_dpi = '{record.paciente_dpi}'"
     cur.execute(query_ver)
     row = cur.fetchone()
 
@@ -622,47 +622,50 @@ async def update_record(record: models.UpdateRecord) -> dict:
                 "query": query
             }
 
-    try:
-        query = f"UPDATE expediente SET fecha_ingreso = date '{record.fecha_atencion}' WHERE no_expediente = {record.no_expediente}"
-        cur.execute(query)
-        conn.commit()
-    except Exception as e:
-        print(e)
-        cur.close()
-        conn.close()
-        return {
-            "updated": False,
-            "message": "Error al actualizar la fecha de entrada del expediente",
-            "query": query
-        }
-
-    try:
+    if record.medico_encargado is not None:
         query = f"UPDATE expediente SET medico_encargado = '{record.medico_encargado}' WHERE no_expediente = {record.no_expediente}"
-        cur.execute(query)
-        conn.commit()
-    except Exception as e:
-        print(e)
-        cur.close()
-        conn.close()
-        return {
-            "updated": False,
-            "message": "Error al actualizar el médico encargado del expediente",
-            "query": query
-        }
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar el médico encargado del expediente",
+                "query": query
+            }
 
-    try:
-        query = f"UPDATE expediente SET unidad_salud_id = '{record.unidad_salud_id}' WHERE no_expediente = {record.no_expediente}"
-        cur.execute(query)
-        conn.commit()
-    except Exception as e:
-        print(e)
-        cur.close()
-        conn.close()
-        return {
-            "updated": False,
-            "message": "Error al actualizar la unidad de salud del expediente",
-            "query": query
-        }
+    if record.fecha_atencion is not None:
+        query = f"UPDATE expediente SET fecha_ingreso = date '{record.fecha_atencion}' WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "added": False,
+                "message": "Error al actualizar la fecha de atención del expediente",
+                "query": query
+            }
+
+    if record.unidad_salud_id is not None:
+        query = f"UPDATE expediente SET unidad_salud_id = {record.unidad_salud_id} WHERE no_expediente = {record.no_expediente}"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            cur.close()
+            conn.close()
+            return {
+                "updated": False,
+                "message": "Error al actualizar la unidad de salud del expediente",
+                "query": query
+            }
 
     if record.medicamentos is not None:
         for medicamento in record.medicamentos:
