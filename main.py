@@ -1337,24 +1337,94 @@ async def update_patient_profile(patient: models.PatientUpdate) -> models.Patien
     query_auth = f"set my.app_user = '{patient.dpi_auth}'"
     cur.execute(query_auth)
 
-    query = f"UPDATE paciente SET estatura = {patient.estatura}, peso = {patient.peso}, telefono = '{patient.telefono}', adicciones = '{patient.adicciones}', direccion = '{patient.direccion}', enfermedades_hereditarias = '{patient.enfermedades_hereditarias}' WHERE dpi = '{patient.dpi}'"
-    try:
-        cur.execute(query)
-        conn.commit()
+    query_ver = f"SELECT * FROM paciente WHERE dpi = '{patient.dpi}'"
+    cur.execute(query_ver)
+    row = cur.fetchone()
 
-        cur.close()
-        conn.close()
-
-        return {
-            "updated": True,
-        }
-    except Exception as e:
-        print(e)
+    if row is None:
         return {
             "updated": False,
-            "message": "Error updating patient profile",
-            "query": query
+            "message": "Patient does not exist"
         }
+
+    if patient.estatura is not None:
+        query = f"UPDATE paciente SET estatura = {patient.estatura} WHERE dpi = '{patient.dpi}'"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            return {
+                "updated": False,
+                "message": "Error updating patient"
+            }
+
+    if patient.peso is not None:
+        query = f"UPDATE paciente SET peso = {patient.peso} WHERE dpi = '{patient.dpi}'"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            return {
+                "updated": False,
+                "message": "Error updating patient"
+            }
+
+    if patient.telefono is not None:
+        query = f"UPDATE paciente SET telefono = '{patient.telefono}' WHERE dpi = '{patient.dpi}'"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            return {
+                "updated": False,
+                "message": "Error updating patient"
+            }
+
+    if patient.adicciones is not None:
+        query = f"UPDATE paciente SET adicciones = '{patient.adicciones}' WHERE dpi = '{patient.dpi}'"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            return {
+                "updated": False,
+                "message": "Error updating patient"
+            }
+
+    if patient.direccion is not None:
+        query = f"UPDATE paciente SET direccion = '{patient.direccion}' WHERE dpi = '{patient.dpi}'"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            return {
+                "updated": False,
+                "message": "Error updating patient"
+            }
+
+    if patient.enfermedades_hereditarias is not None:
+        query = f"UPDATE paciente SET enfermedades_hereditarias = '{patient.enfermedades_hereditarias}' WHERE dpi = '{patient.dpi}'"
+        try:
+            cur.execute(query)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            return {
+                "updated": False,
+                "message": "Error updating patient"
+            }
+
+    cur.close()
+    conn.close()
+    return {
+        "updated": True
+    }
+
 
 
 #######################################################################################################################

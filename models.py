@@ -239,7 +239,7 @@ class PatientCreate(BaseModel):
 
 class PatientUpdate(BaseModel):
     dpi: str
-    nombre: str
+    nombre: str | None
     estatura: float | None
     peso: float | None
     telefono: str | None
