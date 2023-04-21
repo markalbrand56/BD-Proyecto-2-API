@@ -1262,7 +1262,7 @@ async def create_patient(patient: models.PatientCreate) -> models.PatientDetails
     conn = connect_db()
     cur = conn.cursor()
 
-    print(patient)
+    # print(patient)
 
     query_auth = f"set my.app_user = '{patient.dpi_auth}'"
     cur.execute(query_auth)
