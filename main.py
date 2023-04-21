@@ -1153,7 +1153,7 @@ async def update_account(account: models.AccountUpdate) -> models.UserDetailsUpd
     conn = connect_db()
     cur = conn.cursor()
 
-    user_auth = f"set my.app_user = '{account.dpi}'"
+    user_auth = f"set my.app_user = '{account.dpi_auth}'"
     cur.execute(user_auth)
 
     query = f"UPDATE medico SET direccion = '{account.direccion}', telefono = '{account.telefono}', especialidad = '{account.especialidad}' WHERE dpi = '{account.dpi}'"

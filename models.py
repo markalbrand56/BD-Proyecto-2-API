@@ -177,6 +177,7 @@ class AccountUpdate(BaseModel):
     direccion: str
     telefono: str
     especialidad: str
+    dpi_auth: str
 
 
 class MedicineSearch(BaseModel):
