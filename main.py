@@ -935,7 +935,6 @@ async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[mo
         return {"message": "No unit found"}
 
     id_unidad = row[0]
-    print(id_unidad)
 
     query = f"SELECT b.id, b.detalle, b.expiracion FROM bodega b WHERE b.unidad_salud_id = {id_unidad} and expiracion > current_date and b.cantidad > 0"
     cur.execute(query)
