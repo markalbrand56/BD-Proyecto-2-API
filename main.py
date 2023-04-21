@@ -934,7 +934,7 @@ async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[mo
     id_unidad = row[0]
     print(id_unidad)
 
-    query = f"SELECT b.id, b.detalle FROM bodega b WHERE b.unidad_salud_id = {id_unidad} and expiracion > current_date and b.cantidad > 0"
+    query = f"SELECT b.id, b.detalle, b.expiracion FROM bodega b WHERE b.unidad_salud_id = {id_unidad} and expiracion > current_date and b.cantidad > 0"
     cur.execute(query)
     rows = cur.fetchall()
 
@@ -945,12 +945,15 @@ async def get_medicines_by_establecimiento(id: models.MedicineSearch) -> list[mo
 
     result = []
     for row in rows:
-        result.append(
-            models.MedicineResponse(
-                id=row[0],
-                detalle=row[1]
-            )
+        med = models.MedicineResponse(
+            id=row[0],
+            detalle=row[1]
         )
+
+        if row[2] is not None:
+            med.expiracion = str(row[2])
+
+        result.append(med)
 
     cur.close()
     conn.close()

@@ -186,6 +186,7 @@ class MedicineSearch(BaseModel):
 class MedicineResponse(BaseModel):
     id: int
     detalle: str
+    expiracion: str | None
 
 
 class MedicinaExpediente(BaseModel):
